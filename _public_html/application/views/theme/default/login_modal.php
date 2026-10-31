@@ -151,7 +151,8 @@
                     } else {
 
                         $("#error_login").fadeIn(1000, function() {
-                            $("#error_login").html('<div class="alert alert-danger"><strong>Opps!</strong> Username or password not match.Please try again.</div>');
+                            var msg = response.message || 'Username or password not match.Please try again.';
+                            $("#error_login").html('<div class="alert alert-danger"><strong>Opps!</strong> ' + msg + '</div>');
 
                             $("#btn-login").html('<i class="fa fa-sign-in" aria-hidden="true"></i> &nbsp; Sign In');
                         });

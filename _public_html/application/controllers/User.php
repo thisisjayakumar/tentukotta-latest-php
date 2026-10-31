@@ -27,6 +27,7 @@ class User extends Home_Core_Controller{
         parent::__construct();
         $this->load->library('google');
         $this->load->library('facebook');
+        $this->load->model('auth_attempt_model');
         /* cache control */
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         $this->output->set_header('Pragma: no-cache');
@@ -341,10 +342,15 @@ class User extends Home_Core_Controller{
         }   
     // validate login  function
     function validate_login($email   =   '' , $password   =  ''){
+        $ip = $this->input->ip_address();
+        if ($this->auth_attempt_model->too_many($ip, (string) $email)) {
+            return 'throttled';
+        }
         // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
         $this->db->where('email', $email);
         $row = $this->db->get('user')->row();
         if ($row && Password::verify((string) $password, (string) $row->password)):
+            $this->auth_attempt_model->clear($ip, (string) $email);
             // Transparently upgrade legacy/weak hashes after a successful login.
             if (Password::needs_rehash((string) $row->password)):
                 $this->db->where('user_id', $row->user_id);
@@ -368,7 +374,8 @@ class User extends Home_Core_Controller{
               $this->session->set_userdata('login_type', 'subscriber');
             endif;
               return 'success';
-        endif;        
+        endif;
+        $this->auth_attempt_model->record($ip, (string) $email);
         return 'invalid';       
     }
 
@@ -531,6 +538,9 @@ class User extends Home_Core_Controller{
                 if($this->session->userdata('admin_is_login')==1)
                 redirect(base_url() . 'admin/dashboard', 'refresh');
             redirect(base_url() . 'user/profile', 'refresh');
+            elseif ($login_status == 'throttled'):
+                $this->session->set_flashdata('login_error', 'Too many login attempts. Try again in 15 minutes.');
+                redirect(base_url() . 'user/login', 'refresh');
             else:
                 $this->session->set_flashdata('login_error', 'Username & password not match..');
                 redirect(base_url() . 'user/login', 'refresh');

@@ -64,6 +64,26 @@ if (!function_exists('str_slug')) {
     }
 }
 
+/**
+ * Redirect to a same-host path only; absolute or protocol-relative URLs
+ * (the classic ?url=https://evil.test open redirect) fall back to base_url().
+ */
+if ( ! function_exists('safe_redirect')):
+	function safe_redirect(?string $url, string $method = 'auto'): void
+	{
+		if ($url === null || $url === ''
+			|| preg_match('#^(https?:)?//#i', $url)
+			|| preg_match('#^[a-z][a-z0-9+.-]*:#i', $url)
+			|| str_contains($url, '\\')
+			|| preg_match('/[\x00-\x1F\x7F]/', $url)
+		) {
+			redirect(base_url(), $method);
+			return;
+		}
+		redirect($url, $method);
+	}
+endif;
+
 // Escape a value for HTML output (text and quoted attributes).
 if ( ! function_exists('e')):
 	function e($value)

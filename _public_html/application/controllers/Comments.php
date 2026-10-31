@@ -37,7 +37,7 @@ class Comments extends Home_Core_Controller {
         $url =$this->input->post('url');
 		if ($this->session->userdata('login_status') != 1){
 			$this->session->set_flashdata('error', 'You must login to comments.');
-			redirect($url , 'refresh');
+			safe_redirect($url);
 		}
         $data['user_id'] =$this->session->userdata('user_id');
         $data['video_id'] = $this->input->post('video_id');
@@ -47,14 +47,14 @@ class Comments extends Home_Core_Controller {
 
         $this->db->insert('comments', $data);
         $this->session->set_flashdata('success', 'Comment successed');
-        redirect($url, 'refresh');
+        safe_redirect($url);
 
     }
    function replay($param1='' , $param2=''){
         $url =$this->input->post('url');
 		if ($this->session->userdata('login_status') != 1){
 			$this->session->set_flashdata('error', 'You must login to replay.');
-			redirect($url , 'refresh');
+			safe_redirect($url);
 		}
             
 
@@ -68,7 +68,7 @@ class Comments extends Home_Core_Controller {
 
         $this->db->insert('comments', $data);
         $this->session->set_flashdata('success', 'Replay successed');
-        redirect($url, 'refresh');
+        safe_redirect($url);
 
     }
 
@@ -76,7 +76,7 @@ class Comments extends Home_Core_Controller {
         $url =$this->input->post('url');
 		if ($this->session->userdata('login_status') != 1){
 			$this->session->set_flashdata('error', 'You must login to replay.');
-			redirect($url , 'refresh');
+			safe_redirect($url);
 		}
         $data['user_id'] =$this->session->userdata('user_id');
         $data['post_id'] = $this->input->post('post_id');
@@ -88,7 +88,7 @@ class Comments extends Home_Core_Controller {
 
         $this->db->insert('post_comments', $data);
         $this->session->set_flashdata('success', 'Replay successed');
-        redirect($url, 'refresh');
+        safe_redirect($url);
 
     }
 
@@ -96,7 +96,7 @@ class Comments extends Home_Core_Controller {
         $url =$this->input->post('url');
 		if ($this->session->userdata('login_status') != 1){
 			$this->session->set_flashdata('error', 'You must login to comments.');
-			redirect($url , 'refresh');
+			safe_redirect($url);
 		}            
 
         $data['user_id'] =$this->session->userdata('user_id');
@@ -107,7 +107,7 @@ class Comments extends Home_Core_Controller {
 
         $this->db->insert('post_comments', $data);
         $this->session->set_flashdata('success', 'Comment successed');
-        redirect($url, 'refresh');
+        safe_redirect($url);
 
     }
 }

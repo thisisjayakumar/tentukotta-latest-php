@@ -25,6 +25,7 @@ class V130 extends API_Core_Controller{
 		parent::__construct();
         $this->load->model('common_model');
         $this->load->model('api_v130_model');
+        $this->load->model('auth_attempt_model');
 		$this->load->database();
 	
    		/*cache controling*/
@@ -315,9 +316,18 @@ class V130 extends API_Core_Controller{
     public function login_post() {
         $email                      =   trim($this->input->post('email'));
         $password                   =   trim($this->input->post('password'));
+        $ip                         =   $this->input->ip_address();
+        if ($this->auth_attempt_model->too_many($ip, $email)) {
+            $this->response(array(
+                'status'  => 'error',
+                'message' => 'Too many login attempts. Try again in 15 minutes.',
+            ), 429);
+            return;
+        }
         if (filter_var($email, FILTER_VALIDATE_EMAIL) && $password !='' && $password !=NULL):            
             $login_status               = $this->api_v130_model->validate_user( $email ,$password);        
             if ($login_status):
+                $this->auth_attempt_model->clear($ip, $email);
                 $credential    =   array(  'email' => $email ,'status'=>'1');
                 $this->db->where($credential);
                 $this->db->update('user', array('last_login' => date('Y-m-d H:i:s')));
@@ -338,6 +348,7 @@ class V130 extends API_Core_Controller{
                 $response['join_date']  = $user_info->join_date;
                 $response['last_login'] = $user_info->last_login;
             else:
+                $this->auth_attempt_model->record($ip, $email);
                 $response['status']     = 'error';
                 $response['data']       = 'Emai & username not match.Please try again.';
             endif;

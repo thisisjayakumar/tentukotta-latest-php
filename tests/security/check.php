@@ -358,4 +358,51 @@ check('admin image uploads go through safe_image_upload', function () {
         && str_contains($s, 'safe_subtitle_upload(');
 });
 
+// -----------------------------------------------------------------------------
+// TASK 11: login throttling and open-redirect fix
+// -----------------------------------------------------------------------------
+check('login throttling model exists', fn() => is_file(root() . '/application/models/Auth_attempt_model.php'));
+check('throttling model exposes too_many/record/clear', function () {
+    $s = src('application/models/Auth_attempt_model.php');
+    return str_contains($s, 'function too_many')
+        && str_contains($s, 'function record')
+        && str_contains($s, 'function clear')
+        && str_contains($s, 'table_exists');
+});
+check('login_attempts migration exists', fn() => is_file(
+    dirname(__DIR__, 2) . '/docs/migrations/2026-10-31-login-attempts.sql'));
+check('every credential path is throttled', function () {
+    $files = [
+        'application/controllers/Login.php',
+        'application/controllers/User.php',
+        'application/controllers/rest_api/V100.php',
+        'application/controllers/rest_api/V130.php',
+        'application/controllers/Legacy_api.php',
+    ];
+    foreach ($files as $f) {
+        $s = src($f);
+        if (!str_contains($s, 'too_many(') || !str_contains($s, '->record(')) return false;
+    }
+    return true;
+});
+check('API throttling returns HTTP 429', function () {
+    foreach (['rest_api/V100.php', 'rest_api/V130.php', 'Legacy_api.php'] as $f) {
+        $s = src('application/controllers/' . $f);
+        if (!str_contains($s, '429')) return false;
+    }
+    return true;
+});
+check('safe_redirect helper defined', fn() => has('application/helpers/custom_helper.php', 'function safe_redirect'));
+check('comments use safe_redirect', function () {
+    $s = src('application/controllers/Comments.php');
+    return str_contains($s, 'safe_redirect($url)')
+        && !preg_match('/(?<!safe_)redirect\(\s*\$url/', $s);
+});
+check('safe_redirect rejects external hosts and schemes', function () {
+    $s = src('application/helpers/custom_helper.php');
+    return str_contains($s, '#^(https?:)?//#i')
+        && str_contains($s, '#^[a-z][a-z0-9+.-]*:#i')
+        && str_contains($s, 'redirect(base_url(), $method)');
+});
+
 exit($fails > 0 ? 1 : 0);

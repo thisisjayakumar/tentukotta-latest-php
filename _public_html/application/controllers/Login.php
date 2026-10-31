@@ -24,6 +24,7 @@ class Login extends Home_Core_Controller{
     
     function __construct(){
         parent::__construct();
+        $this->load->model('auth_attempt_model');
         /*cache control*/
         $this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT');
         $this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
@@ -49,6 +50,9 @@ class Login extends Home_Core_Controller{
 		//Validating login
 		$login_status 					= $this->validate_login( $username ,  $password);
 		$response['login_status'] 		= $login_status;
+		if ($login_status == 'throttled') {
+			$response['message'] = 'Too many login attempts. Try again in 15 minutes.';
+		}
 		if ($login_status == 'success') {
             if($this->session->userdata('login_type') == 'admin'){
                 $response['redirect_url']   = base_url().'admin';
@@ -82,11 +86,16 @@ class Login extends Home_Core_Controller{
     
     //Validating login from ajax request
     function validate_login($username	=	'' , $password	 =  ''){
+        $ip = $this->input->ip_address();
+        if ($this->auth_attempt_model->too_many($ip, (string) $username)) {
+            return 'throttled';
+        }
         // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
         $this->db->where('username', $username);
         $query = $this->db->get('user');
         $row   = $query->row();
         if ($row && Password::verify((string) $password, (string) $row->password)) {
+            $this->auth_attempt_model->clear($ip, (string) $username);
             // Transparently upgrade legacy/weak hashes after a successful login.
             if (Password::needs_rehash((string) $row->password)) {
                 $this->db->where('user_id', $row->user_id);
@@ -123,7 +132,7 @@ class Login extends Home_Core_Controller{
 			}
 			  return 'success';
 		}
-		
+		$this->auth_attempt_model->record($ip, (string) $username);
 		return 'invalid';		
     }
 

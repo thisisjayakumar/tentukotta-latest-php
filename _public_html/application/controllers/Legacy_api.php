@@ -26,6 +26,7 @@ class Legacy_api extends CI_Controller{
 		parent::__construct();
         $this->load->model('common_model');
         $this->load->model('legacy_api_model');
+        $this->load->model('auth_attempt_model');
         $this->load->model('api_subscription_model');
         $this->load->model('subscription_model');
 		$this->load->database();
@@ -632,9 +633,19 @@ class Legacy_api extends CI_Controller{
             if($verify_apps_api_secret_key):
                 $email                      =   trim($this->input->get('email'));
                 $password                   =   trim($this->input->get('password'));
+                $ip                         =   $this->input->ip_address();
+                if ($this->auth_attempt_model->too_many($ip, $email)) {
+                    http_response_code(429);
+                    echo json_encode(array(
+                        'status'  => 'error',
+                        'message' => 'Too many login attempts. Try again in 15 minutes.',
+                    ));
+                    return;
+                }
                 if (filter_var($email, FILTER_VALIDATE_EMAIL) && $password !='' && $password !=NULL):            
                     $login_status               = $this->legacy_api_model->validate_user( $email ,$password);        
                     if ($login_status):
+                        $this->auth_attempt_model->clear($ip, $email);
                         $credential    =   array(  'email' => $email ,'status'=>'1');
                         $this->db->where($credential);
                         $this->db->update('user', array('last_login' => date('Y-m-d H:i:s')));
@@ -653,6 +664,7 @@ class Legacy_api extends CI_Controller{
                         $response['join_date']  = $user_info->join_date;
                         $response['last_login'] = $user_info->last_login;
                     else:
+                        $this->auth_attempt_model->record($ip, $email);
                         $response['status']     = 'error';
                         $response['data']       = 'Emai & username not match.Please try again.';
                     endif;
