@@ -120,6 +120,8 @@ check('delete_record uses the whitelist', function () {
         && str_contains($s, "'Table not permitted'");
 });
 check('update_status rejects non-whitelisted columns', fn() => has('application/controllers/Admin.php', "'Column not permitted'"));
+check('admin_tables is not loaded as a config section', fn() => !preg_match(
+    "/config->load\\(\\s*'admin_tables'\\s*,\\s*TRUE\\)/", src('application/controllers/Admin.php')));
 check('no raw table_names from input reach db->delete', fn() => !preg_match(
     '/\$this->db->delete\(\s*\$this->input->post/', src('application/controllers/Admin.php')));
 
@@ -127,6 +129,8 @@ check('no raw table_names from input reach db->delete', fn() => !preg_match(
 // TASK 5: authenticate the REST API and redact secrets/PII
 // -----------------------------------------------------------------------------
 check('API base controller exists', fn() => is_file(root() . '/application/core/API_Core_Controller.php'));
+check('RestServer library key table is disabled', fn() => preg_match(
+    "/rest_enable_keys'\\]\\s*=\\s*false/i", src('application/config/rest.php')) === 1);
 check('API base controller enforces a key', function () {
     $s = src('application/core/API_Core_Controller.php');
     return str_contains($s, 'function _require_api_key')

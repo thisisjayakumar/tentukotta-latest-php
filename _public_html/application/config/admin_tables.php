@@ -9,8 +9,9 @@
  * `user`, `config`, and `ci_sessions`.
  *
  * Every entry below must be an explicit, intentional admin-mutable table.
- * Never add: `user`, `config`, `ci_sessions`, `keys`, `logs`, `rest_logins`,
- * `temp_config`.
+ * Never add: `config`, `ci_sessions`, `keys`, `logs`, `rest_logins`,
+ * `temp_config`. `user` is present below for the existing status/delete UI
+ * only; never widen it beyond the single `status` column.
  */
 defined('BASEPATH') OR exit('No direct script access allowed');
 

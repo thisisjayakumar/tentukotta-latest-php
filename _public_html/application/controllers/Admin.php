@@ -3738,7 +3738,7 @@ class Admin extends Admin_Core_Controller {
             $response['status']  = 'error';
             $response['message'] = 'Action not allow on demo';
         else:
-            $this->config->load('admin_tables', TRUE);
+            $this->config->load('admin_tables');
             $allowed            = $this->config->item('admin_tables');
 
             $row_id             = $this->input->post('row_id');
@@ -3774,7 +3774,7 @@ class Admin extends Admin_Core_Controller {
             $response['status']  = 'error';
             $response['message'] = 'Action not allow on demo';
         else:
-            $this->config->load('admin_tables', TRUE);
+            $this->config->load('admin_tables');
             $allowed                = $this->config->item('admin_tables');
 
             $table                  = $this->input->post('table');

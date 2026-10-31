@@ -329,7 +329,10 @@ $config['rest_keys_table'] = 'keys';
 |   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 |
 */
-$config['rest_enable_keys'] = true;
+// Keys are enforced centrally by API_Core_Controller (config row
+// mobile_apps_api_secret_key). Leaving the library's own key table enabled
+// makes it reject valid requests before API_Core_Controller runs.
+$config['rest_enable_keys'] = false;
 
 /*
 |--------------------------------------------------------------------------
