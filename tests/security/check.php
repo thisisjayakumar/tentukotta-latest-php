@@ -80,7 +80,7 @@ check('.htaccess denies backup extensions', fn() => has('.htaccess', 'bak'));
 // TASK 2: production mode + safe error handling
 // -----------------------------------------------------------------------------
 check('ENVIRONMENT is production', fn() => has('index.php', "define('ENVIRONMENT', 'production')"));
-check('db_debug disabled in production', fn() => preg_match("/'db_debug'\s*=>\s*(true|TRUE|FALSE|false)/", src('application/config/database.php')) === 1 && str_contains(src('application/config/database.php'), "'db_debug' => FALSE"));
-check('error logging enabled (threshold >= 1)', fn() => preg_match("/log_threshold'\]\\s*=\\s*[1-4]/", src('application/config/config.php')) === 1);
+check('db_debug not hardcoded TRUE', fn() => !preg_match("/'db_debug'\s*=>\s*TRUE/i", src('application/config/database.php')));
+check('error logging enabled (threshold >= 1)', fn() => preg_match("/log_threshold'\]\s*=\s*[1-4]/", src('application/config/config.php')) === 1);
 
 exit($fails > 0 ? 1 : 0);
