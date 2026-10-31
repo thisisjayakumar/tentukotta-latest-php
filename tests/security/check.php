@@ -83,4 +83,23 @@ check('ENVIRONMENT is production', fn() => has('index.php', "define('ENVIRONMENT
 check('db_debug not hardcoded TRUE', fn() => !preg_match("/'db_debug'\s*=>\s*TRUE/i", src('application/config/database.php')));
 check('error logging enabled (threshold >= 1)', fn() => preg_match("/log_threshold'\]\s*=\s*[1-4]/", src('application/config/config.php')) === 1);
 
+// -----------------------------------------------------------------------------
+// TASK 3: central admin authentication gate
+// -----------------------------------------------------------------------------
+check('Admin_Core_Controller enforces admin session', function () {
+    $s = src('application/core/Core_Controller.php');
+    if (preg_match('/class Admin_Core_Controller.*?class Home_Core_Controller/s', $s, $m) !== 1) {
+        return false;
+    }
+    return str_contains($m[0], 'function _require_admin')
+        && str_contains($m[0], '$this->_require_admin()');
+});
+check('Admin constructor delegates to parent', fn() => preg_match(
+    '/class Admin[^{]*\{[^}]*function\s+__construct\s*\([^)]*\)\s*\{\s*parent::__construct\(\)/s',
+    src('application/controllers/Admin.php')) === 1);
+check('public rating moved out of Admin.php', fn() => !preg_match(
+    '/function\s+rating\s*\(/', src('application/controllers/Admin.php')));
+check('public rating controller exists', fn() => is_file(root() . '/application/controllers/Movie_public.php'));
+check('admin/rating route preserved', fn() => has('application/config/routes.php', "'admin/rating'"));
+
 exit($fails > 0 ? 1 : 0);

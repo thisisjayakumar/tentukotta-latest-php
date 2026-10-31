@@ -3960,49 +3960,6 @@ class Admin extends Admin_Core_Controller {
         echo json_encode($response);    
     }
     // rating
-    function rating(){
-        $response                   = array();            
-        $rate                       = $_POST["rate"];
-        $video_id                   = $_POST["video_id"];
-        $post_status                = $this->post_rating( $rate , $video_id);
-        $response['post_status']    = $post_status; 
-        $response['rate']           = $rate; 
-        $response['video_id']       = $video_id; 
-        echo json_encode($response);    
-    }
-    // post rating
-    function post_rating( $rate , $video_id){
-
-        $ip=$_SERVER['REMOTE_ADDR'];
-
-        $verify_data = array(
-                            'video_id'      => $video_id,                             
-                            'ip'            => $ip                                                    
-                            );
-
-        $data = array(
-                      'video_id'            => $video_id,
-                      'rating'              => $rate,                             
-                       'ip'                 => $ip                                                   
-                    );
-
-        $query = $this->db->get_where('rating' , $verify_data);        
-            $rating = $query->result_array();
-            $num_row = $query->num_rows();
-            if($num_row>0){        
-                $this->db->where($verify_data);
-				$this->db->update('rating', $data);
-			}
-            else{                
-                $this->db->insert('rating', $data);
-                $current_rating =$this->db->get_where('videos' , array('videos_id'=>$video_id))->row()->total_rating;
-				$rating=$current_rating+1;
-				$this->db->where('videos_id', $video_id);
-				$this->db->update('videos', array('total_rating' => $rating));                
-            }
-           return "success"; 
-        }
-
         //movie importer
     function movie_importer(){
         if ($this->session->userdata('admin_is_login') != 1)

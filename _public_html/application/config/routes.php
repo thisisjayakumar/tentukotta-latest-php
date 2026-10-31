@@ -58,6 +58,10 @@
 // default language routes
 
 
+// Security hardening: public movie rating lives in its own unauthenticated
+// controller, keeping the existing front-end URL contract intact.
+$route['admin/rating'] 					= 'movie_public/rating';
+
 $route['watch/(:any)'] 					= 'watch/index/$1';
 $route['watch/(:any)/(:any)'] 			= 'watch/index/$1/$2';
 $route['watch/(:any)/(:any)/(:any)'] 	= 'watch/index/$1/$2/$3';
