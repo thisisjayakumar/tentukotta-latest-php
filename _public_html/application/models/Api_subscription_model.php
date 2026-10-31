@@ -307,6 +307,16 @@ class Api_subscription_model extends CI_Model {
         return $response;
     }
 
+    /**
+     * Public payment configuration for the mobile clients.
+     *
+     * Returns only values a client may see (no gateway secrets). This is the
+     * single supported accessor for API responses; see SECURITY-AUDIT.md.
+     */
+    function get_public_payment_config(){
+        return $this->get_payment_config();
+    }
+
     function get_payment_config(){
         $response                               = array();
         $response['currency_symbol']            = $this->db->get_where('config' , array('title'=>'currency_symbol'))->row()->value;
@@ -314,10 +324,7 @@ class Api_subscription_model extends CI_Model {
         $response['paypal_email']               = $this->db->get_where('config' , array('title'=>'paypal_email'))->row()->value;
         $response['paypal_client_id']           = $this->db->get_where('config' , array('title'=>'paypal_client_id'))->row()->value;
         $response['stripe_publishable_key']     = $this->db->get_where('config' , array('title'=>'stripe_publishable_key'))->row()->value;
-        $response['stripe_secret_key']          = $this->db->get_where('config' , array('title'=>'stripe_secret_key'))->row()->value;
         $response['reve_public_key']            = 'dfgdfdgdfgdfg';//$this->db->get_where('config' , array('title'=>'reve_public_key'))->row()->value;
-        $response['reve_secret_key']            = 'dfgdfdgdfgdfg';//$this->db->get_where('config' , array('title'=>'reve_secret_key'))->row()->value;
-        $response['reve_encryption_key']        = 'dfgdfdgdfgdfg';//$this->db->get_where('config' , array('title'=>'reve_encryption_key'))->row()->value;
         $response['play_stack_public_key']      = 'dfgdfdgdfgdfg';//$this->db->get_where('config' , array('title'=>'play_stack_public_key'))->row()->value;
         return $response;
     }

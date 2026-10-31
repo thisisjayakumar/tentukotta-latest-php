@@ -17,9 +17,8 @@ if (!defined('BASEPATH'))
  * @link        support@spagreen.net
  *
  **/
-require(APPPATH.'/libraries/RestController.php');
-use chriskacerguis\RestServer\RestController;
-class V100 extends RestController{ 
+require_once(APPPATH.'/core/API_Core_Controller.php');
+class V100 extends API_Core_Controller{ 
     
 	function __construct(){
 		parent::__construct();
@@ -581,7 +580,7 @@ class V100 extends RestController{
     public function config_get() { 
         $response['app_config']                         =   $this->api_v100_model->get_app_config();
         $response['ads_config']                         =   $this->api_v100_model->get_ads_config();
-        $response['payment_config']                     =   $this->api_v100_model->get_payment_config();
+        $response['payment_config']                     =   $this->api_v100_model->get_public_payment_config();
         $response['apk_version_info']                   =   $this->api_v100_model->get_apk_version_info();
         $response['genre']                              =   $this->api_v100_model->get_all_genre();
         $response['country']                            =   $this->api_v100_model->get_all_country();
@@ -956,7 +955,7 @@ class V100 extends RestController{
 
     // get check_validated_subscription_plan
     public function payment_config_get() {        
-        $response['config']    =   $this->api_v100_model->get_payment_config();            
+        $response['config']    =   $this->api_v100_model->get_public_payment_config();            
         $this->response($response,200);
     }
 

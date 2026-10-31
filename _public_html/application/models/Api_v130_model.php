@@ -2482,6 +2482,16 @@ class Api_v130_model extends CI_Model {
         return $response;
     }
 
+    /**
+     * Public payment configuration for the mobile clients.
+     *
+     * Returns only values a client may see (no gateway secrets). This is the
+     * single supported accessor for API responses; see SECURITY-AUDIT.md.
+     */
+    function get_public_payment_config(){
+        return $this->get_payment_config();
+    }
+
     function get_payment_config(){
         $response                               = array();
         $response['currency_symbol']            = $this->db->get_where('config' , array('title'=>'currency_symbol'))->row()->value;
@@ -2506,7 +2516,6 @@ class Api_v130_model extends CI_Model {
             endif;
         endif;
         $response['stripe_publishable_key']     = $this->db->get_where('config' , array('title'=>'stripe_publishable_key'))->row()->value;
-        $response['stripe_secret_key']          = $this->db->get_where('config' , array('title'=>'stripe_secret_key'))->row()->value;
         // razorpay
         $response['razorpay_enable']            = true;
         $query                                  = $this->db->get_where('config' , array('title'=>'razorpay_enable'));
@@ -2516,7 +2525,6 @@ class Api_v130_model extends CI_Model {
             endif;
         endif;
         $response['razorpay_key_id']            = $this->db->get_where('config' , array('title'=>'razorpay_key_id'))->row()->value;
-        $response['razorpay_key_secret']        = $this->db->get_where('config' , array('title'=>'razorpay_key_secret'))->row()->value;
         $response['razorpay_inr_exchange_rate'] = 1;
         $query                                  = $this->db->get_where('config' , array('title'=>'razorpay_inr_exchange_rate'));
         if($query->num_rows() >0):

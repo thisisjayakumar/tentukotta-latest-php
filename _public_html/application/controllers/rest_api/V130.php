@@ -17,9 +17,8 @@ if (!defined('BASEPATH'))
  * @link        support@spagreen.net
  *
  **/
-require(APPPATH.'/libraries/RestController.php');
-use chriskacerguis\RestServer\RestController;
-class V130 extends RestController{ 
+require_once(APPPATH.'/core/API_Core_Controller.php');
+class V130 extends API_Core_Controller{ 
     
 	function __construct(){
 		parent::__construct();
@@ -605,7 +604,7 @@ class V130 extends RestController{
         $response['app_config']                         =   $this->api_v130_model->get_app_config();
         $response['ads_config_new']                     =   $this->api_v130_model->get_ads_config_new();
         $response['ads_config']                         =   $this->api_v130_model->get_ads_config();
-        $response['payment_config']                     =   $this->api_v130_model->get_payment_config();
+        $response['payment_config']                     =   $this->api_v130_model->get_public_payment_config();
         $response['apk_version_info']                   =   $this->api_v130_model->get_apk_version_info();
         $response['genre']                              =   $this->api_v130_model->get_all_genre();
         $response['country']                            =   $this->api_v130_model->get_all_country();
@@ -911,7 +910,10 @@ class V130 extends RestController{
                     $is_valid_user_id               = $this->api_v130_model->validate_user_by_id( $user_id);        
                     if ($is_valid_user_id):                                
                         $response['status']     = 'success';
-                        $response['user_info']=   $this->api_v130_model->get_user_info_by_user_id($user_id);
+                        // Never expose password / token / firebase_auth_uid.
+                        $response['user_info']=   $this->public_user_fields(
+                            $this->api_v130_model->get_user_info_by_user_id($user_id)
+                        );
                     else:
                         $response['status']     = 'error';
                         $response['message']    = 'There is a problem with user.Please contact with system administrator.';
@@ -980,27 +982,19 @@ class V130 extends RestController{
 
     // get check_validated_subscription_plan
     public function payment_config_get() {        
-        $response['config']    =   $this->api_v130_model->get_payment_config();            
+        $response['config']    =   $this->api_v130_model->get_public_payment_config();            
         $this->response($response,200);
     }
 
     // get check_validated_subscription_plan
     public function store_payment_info_post() {
-        $data['plan_id']                    =   $this->input->post('plan_id');
-        $data['user_id']                    =   $this->input->post('user_id');
-        $data['paid_amount']                =   (int)$this->input->post('paid_amount')/100;
-        $data['payment_timestamp']          =   strtotime(date("Y-m-d H:i:s"));
-        $data['timestamp_from']             =   strtotime(date("Y-m-d H:i:s"));
-        $day                                =   $this->db->get_where('plan', array('plan_id'=>$data['plan_id']))->row()->day;
-        $day                                =   '+'.$day.' days';
-        $data['timestamp_to']               =   strtotime($day, $data['timestamp_from']);
-        $data['payment_method']             =   $this->input->post('payment_method');
-        $data['payment_info']               =   $this->input->post('payment_info');
-        $data['status']                     =   1;
-        $this->db->insert('subscription' , $data);
-        $response['status']         = 'success';
-        $response['message']        = 'Stored successfully.';            
-        $this->response($response,200);
+        // Disabled until server-side gateway verification is implemented
+        // (security-refactoring Task 7). Until then this endpoint must not
+        // grant subscriptions from a client-supplied payment payload.
+        $this->response([
+            'status'  => 'error',
+            'message' => 'Endpoint disabled pending payment verification',
+        ], 410);
     }
 
     // get check_validated_subscription_plan

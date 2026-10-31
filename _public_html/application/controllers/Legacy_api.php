@@ -1620,7 +1620,7 @@ class Legacy_api extends CI_Controller{
             // verify api secret key
             $verify_apps_api_secret_key =   $this->legacy_api_model->check_mobile_apps_api_secret_key($api_secret_key);
             if($verify_apps_api_secret_key):
-                $response['config']    =   $this->api_subscription_model->get_payment_config();
+                $response['config']    =   $this->api_subscription_model->get_public_payment_config();
             else:
                 $response['status']     = 'error';
                 $response['message']    = 'API secret key is invalid.';

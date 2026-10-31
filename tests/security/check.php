@@ -115,4 +115,35 @@ check('update_status rejects non-whitelisted columns', fn() => has('application/
 check('no raw table_names from input reach db->delete', fn() => !preg_match(
     '/\$this->db->delete\(\s*\$this->input->post/', src('application/controllers/Admin.php')));
 
+// -----------------------------------------------------------------------------
+// TASK 5: authenticate the REST API and redact secrets/PII
+// -----------------------------------------------------------------------------
+check('API base controller exists', fn() => is_file(root() . '/application/core/API_Core_Controller.php'));
+check('API base controller enforces a key', function () {
+    $s = src('application/core/API_Core_Controller.php');
+    return str_contains($s, 'function _require_api_key')
+        && str_contains($s, 'hash_equals')
+        && str_contains($s, 'mobile_apps_api_secret_key');
+});
+check('V130 extends API_Core_Controller', fn() => has('application/controllers/rest_api/V130.php', 'class V130 extends API_Core_Controller'));
+check('V100 extends API_Core_Controller', fn() => has('application/controllers/rest_api/V100.php', 'class V100 extends API_Core_Controller'));
+check('config_get exposes only the public payment subset', function () {
+    $s = src('application/controllers/rest_api/V130.php');
+    return !str_contains($s, '->get_payment_config()')
+        && str_contains($s, '->get_public_payment_config()');
+});
+check('payment config omits gateway secrets', function () {
+    foreach (['Api_v130_model.php', 'Api_v100_model.php', 'Api_subscription_model.php'] as $f) {
+        $s = src('application/models/' . $f);
+        if (preg_match("/\\\$response\\['(stripe_secret_key|razorpay_key_secret|reve_secret_key|reve_encryption_key)'\\]/", $s)) {
+            return false;
+        }
+    }
+    return true;
+});
+check('store_payment_info_post disabled pending verification', fn() => has(
+    'application/controllers/rest_api/V130.php', 'Endpoint disabled pending payment verification'));
+check('tv user lookup redacts private fields', fn() => has(
+    'application/controllers/rest_api/V130.php', 'public_user_fields'));
+
 exit($fails > 0 ? 1 : 0);
