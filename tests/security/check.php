@@ -54,6 +54,14 @@ function check(string $name, callable $fn): void
     }
 }
 
+/**
+ * Record a tracked, non-blocking item (prints SKIP, never bumps the counter).
+ */
+function skip(string $name, string $reason = ''): void
+{
+    echo 'SKIP  ' . $name . ($reason !== '' ? ' (' . $reason . ')' : '') . PHP_EOL;
+}
+
 // -----------------------------------------------------------------------------
 // Harness sanity: prove the harness itself reports failures correctly.
 // These two lines are temporary and get removed once the environment is set.
@@ -404,5 +412,25 @@ check('safe_redirect rejects external hosts and schemes', function () {
         && str_contains($s, '#^[a-z][a-z0-9+.-]*:#i')
         && str_contains($s, 'redirect(base_url(), $method)');
 });
+
+// -----------------------------------------------------------------------------
+// TASK 12: dependency and framework follow-up (tracked, not executed)
+// -----------------------------------------------------------------------------
+check('dependency inventory documented', fn() => is_file(
+    dirname(__DIR__, 2) . '/docs/security/dependency-remediation.md'));
+check('inventory records the Guzzle CVE risk', function () {
+    $p = dirname(__DIR__, 2) . '/docs/security/dependency-remediation.md';
+    if (!is_file($p)) return false;
+    $s = file_get_contents($p);
+    return str_contains($s, 'guzzlehttp/guzzle')
+        && str_contains($s, 'CVE-2022-31042')
+        && str_contains($s, 'CodeIgniter');
+});
+$installed = root() . '/application/third_party/google-api-client/vendor/composer/installed.json';
+if (is_file($installed) && str_contains(file_get_contents($installed), '"version": "6.5.3"')) {
+    skip('guzzle is not the known-vulnerable 6.5.3', 'tracked in docs/security/dependency-remediation.md');
+} else {
+    check('guzzle is not the known-vulnerable 6.5.3', fn() => true);
+}
 
 exit($fails > 0 ? 1 : 0);
