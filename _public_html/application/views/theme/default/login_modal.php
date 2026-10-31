@@ -60,6 +60,7 @@
             <div class="modal-body">
                 <p><?php echo trans('when_becoming_members_of_the_site,_you_could_use_the_full_range_of_functions_and_enjoy_the_most_exciting_films.'); ?></p>
                 <form id="signup_form" method="post" action="<?php echo base_url().'login/signup/do_signup' ?>" class="form-horizontal m-t-20" role="form">
+                <?php echo csrf_input(); ?>
 
     <div class="form-group ">
         <div class="col-xs-12">

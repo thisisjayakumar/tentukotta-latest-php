@@ -58,6 +58,7 @@
         <small><?php echo trans('purchase_plan_text'); ?></small>
     </h2>
     <form method="post" action="">
+    <?php echo csrf_input(); ?>
       <div class="row">
         <?php 
             $sl = 0;

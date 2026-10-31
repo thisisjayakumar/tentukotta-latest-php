@@ -13,6 +13,7 @@
     <body>
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <form name='razorpayform' action="<?php echo base_url('subscription/save_razorpay') ?>" method="POST">
+        <?php echo csrf_input(); ?>
             <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
             <input type="hidden" name="razorpay_signature"  id="razorpay_signature" >
         </form>

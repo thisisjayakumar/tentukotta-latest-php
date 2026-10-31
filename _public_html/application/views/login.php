@@ -14,12 +14,14 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php $this->load->view('common/csrf_meta'); ?>
     <link rel="shortcut icon" href="<?php echo base_url(); ?>assets/images/favicon.ico">
     <!-- CSS-->
     <link rel="stylesheet" type="text/css" href="assets/css/main.css">
      <!-- toast notification  Start-->
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/plugins/toastr/toastr.css">
       <script src="assets/js/jquery-2.1.4.min.js"></script>
+      <?php $this->load->view('common/csrf_script'); ?>
   <script src="assets/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="assets/js/validation.min.js"></script>
     <script type="text/javascript" src="assets/js/login-form.js"></script>
@@ -104,6 +106,7 @@
           </div>
         </form>
         <form class="forget-form" method="post" action="<?php echo base_url().'user/forget_password/do_reset' ?>">
+        <?php echo csrf_input(); ?>
           <h3 class="login-head"><i class="fa fa-lg fa-fw fa-lock"></i>Forgot Password ?</h3>
           <div class="form-group">
             <label class="control-label">EMAIL</label>

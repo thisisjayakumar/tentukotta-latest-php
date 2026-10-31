@@ -24,6 +24,7 @@
                     <?php endif; ?>
                     <div id="contact-form">                        
                         <form class="custom-form" id="recovery-form" method="post" action="<?php echo base_url().'user/forget_password/do_reset'; ?>">
+                        <?php echo csrf_input(); ?>
                             <input type="email" name="email" id="email" data-parsley-type="email" class="form-control half-wdth-field" placeholder="Enter your email" required>                            
                             <p> <?php echo trans('back_to'); ?> <a href="<?php echo base_url().'user/login'; ?>"><?php echo trans('login'); ?></a></p>
                             <div>

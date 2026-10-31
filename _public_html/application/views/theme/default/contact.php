@@ -35,6 +35,7 @@
                     <div id="contact-form">
                         <div class="expMessage"></div>
                         <form class="custom-form" id="" method="post" action="<?php echo base_url().'contact_process'; ?>">
+                        <?php echo csrf_input(); ?>
                             <input type="text" name="name" id="name" class="form-control half-wdth-field" placeholder="Name" >
                             <div id="name_error"></div>
                             <input type="text" name="email" id="email" class="form-control half-wdth-field pull-right" placeholder="Email" >

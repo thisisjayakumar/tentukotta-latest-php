@@ -24,6 +24,7 @@
                     <?php endif; ?>
                     <div id="contact-form">                        
                         <form class="custom-form" id="recovery-form" method="post" action="<?php echo base_url().'user/complete_reset/save'; ?>">
+                        <?php echo csrf_input(); ?>
                             <input type="hidden" name="token" value="<?php if(isset($token)){ echo $token;} ?>">
                             <input type="password" name="password" id="password" data-parsley-type="text" class="form-control half-wdth-field" placeholder="Enter password" required>
                             <input type="password" name="password2" id="password2" data-parsley-equalto="#password" class="form-control half-wdth-field" placeholder="Confirm password" required>                              

@@ -92,6 +92,8 @@ class Login extends Home_Core_Controller{
                 $this->db->where('user_id', $row->user_id);
                 $this->db->update('user', array('password' => Password::hash((string) $password)));
             }
+            // Prevent session fixation: issue a fresh ID after credentials pass.
+            $this->session->sess_regenerate(TRUE);
             $this->session->set_userdata('login_status', '1');
             // Replace the company name                     
             $this->db->where('user_id', $row->user_id);

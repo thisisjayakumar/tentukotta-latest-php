@@ -16,6 +16,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php $this->load->view('common/csrf_meta'); ?>
     <meta name="description" content="">
     <meta name="author" content="Abdul Mannan">
     <meta name="copyright" content="Copyright (c) 2014 - 2020 SpaGreen">
@@ -39,6 +40,7 @@
 
     <!--Jquery JS -->
     <script src="<?php echo base_url(); ?>assets/js/jquery-3.2.1.min.js"></script>
+    <?php $this->load->view('common/csrf_script'); ?>
     <title><?php echo $page_title . '-' . $site_name; ?></title>
     <style type="text/css">
         .page-number a {

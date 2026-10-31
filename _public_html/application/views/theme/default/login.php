@@ -50,6 +50,7 @@
                     </div>
                     <div id="contact-form">                        
                         <form class="custom-form" id="login-form" method="post" action="<?php echo base_url().'user/do_login'; ?>">
+                        <?php echo csrf_input(); ?>
                             <input type="email" name="email" id="login_email" class="form-control half-wdth-field" placeholder="Email" required>
                             <div id="name_error"></div>
                             <input type="password" name="password" id="login_password" class="form-control half-wdth-field pull-right" placeholder="Password" required>
@@ -88,6 +89,7 @@
                     <div id="contact-form">
                         <div class="expMessage"></div>
                         <form class="custom-form" id="signup-form" method="post" action="<?php echo base_url().'user/signup/do_signup'; ?>">
+                        <?php echo csrf_input(); ?>
                             <input type="text" name="name" id="name2" class="form-control half-wdth-field" placeholder="Full Name" required>
                             <input type="email" name="email" id="email2" class="form-control half-wdth-field" placeholder="Email" required>
                             <div id="name_error"></div>

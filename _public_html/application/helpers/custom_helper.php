@@ -63,3 +63,16 @@ if (!function_exists('str_slug')) {
         return url_title($str, "-", true);
     }
 }
+
+// CSRF hidden input for hand-written <form> tags (form_open() adds its own).
+if ( ! function_exists('csrf_input')):
+	function csrf_input()
+	{
+		$CI =& get_instance();
+		if (config_item('csrf_protection') !== TRUE) {
+			return '';
+		}
+		return '<input type="hidden" name="'.html_escape($CI->security->get_csrf_token_name())
+			.'" value="'.html_escape($CI->security->get_csrf_hash()).'" />';
+	}
+endif;

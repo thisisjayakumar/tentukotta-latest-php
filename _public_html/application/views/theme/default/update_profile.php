@@ -79,6 +79,7 @@
                             <div class="ppm-content update-content">
                                 <div class="uc-form">
                                     <form id="profile-form" action="<?php echo base_url().'user/profile/update'; ?>" method="POST" class="form-horizontal" enctype="multipart/form-data">
+                                    <?php echo csrf_input(); ?>
 
                                     <?php 
                                         if($success_msg !=''){

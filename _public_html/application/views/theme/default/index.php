@@ -43,6 +43,7 @@
 <meta property="og:image" content="<?php echo $og_image_url; ?>" />
 <?php endif; ?>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<?php $this->load->view('common/csrf_meta'); ?>
 <title><?php if(isset($title) && !empty($title)): echo $title; else: echo $site_name; endif; ?></title>   
 <link rel="shortcut icon" href="<?php echo base_url('uploads/system_logo/').$favicon; ?>">
 <!-- Style Sheets -->
@@ -61,6 +62,7 @@
 
 
 <script src="<?php echo base_url($assets_dir); ?>js/jquery-2.2.4.min.js" crossorigin="anonymous"></script>
+<?php $this->load->view('common/csrf_script'); ?>
 
 <!-- slider -->
 <link rel="stylesheet" type="text/css" href="<?php echo base_url($assets_dir); ?>swiper/css/swiper.min.css">

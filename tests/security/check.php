@@ -245,4 +245,49 @@ check('social signups never derive a password from email', function () {
         && str_contains($s, 'is_password_set');
 });
 
+// -----------------------------------------------------------------------------
+// TASK 8: CSRF, SameSite/Secure cookies and session regeneration
+// -----------------------------------------------------------------------------
+check('csrf enabled', fn() => preg_match("/csrf_protection'\]\s*=\s*TRUE/", src('application/config/config.php')) === 1);
+check('secure cookie flag set conditionally', function () {
+    $s = src('application/config/config.php');
+    return str_contains($s, 'cookie_secure')
+        && str_contains($s, 'HTTP_X_FORWARDED_PROTO');
+});
+check('samesite configured', fn() => has('application/config/config.php', "sess_samesite']")
+    && has('application/config/config.php', "'Lax'"));
+check('session cookie is httponly', fn() => preg_match("/cookie_httponly'\]\s*=\s*TRUE/", src('application/config/config.php')) === 1);
+check('session id destroyed on regenerate', fn() => preg_match("/sess_regenerate_destroy'\]\s*=\s*TRUE/", src('application/config/config.php')) === 1);
+check('csrf exclusions cover API, cron and PayPal IPN', function () {
+    $s = src('application/config/config.php');
+    return str_contains($s, 'rest-api') && str_contains($s, 'cron')
+        && str_contains($s, 'subscription/paypal/ipn');
+});
+check('session regenerated on admin login', fn() => has('application/controllers/Login.php', 'sess_regenerate(TRUE)'));
+check('session regenerated on front-end login', fn() => has('application/controllers/User.php', 'sess_regenerate(TRUE)'));
+check('csrf helper exists', fn() => has('application/helpers/custom_helper.php', 'function csrf_input'));
+check('every raw POST form carries a csrf token', function () {
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+        root() . '/application/views', FilesystemIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if ($f->getExtension() !== 'php') continue;
+        $s = file_get_contents($f->getPathname());
+        if (!preg_match_all('/<form\b[^>]*method\s*=\s*["\']?post[^>]*>/i', $s, $m, PREG_OFFSET_CAPTURE)) {
+            continue;
+        }
+        foreach ($m[0] as [$tag, $offset]) {
+            $close = strpos($s, '</form>', $offset + strlen($tag));
+            $body = $close === false ? substr($s, $offset) : substr($s, $offset, $close - $offset);
+            if (!str_contains($body, 'csrf_input')) return false;
+        }
+    }
+    return true;
+});
+check('admin and theme pages inject the csrf token', function () {
+    return has('application/views/admin/index.php', 'common/csrf_script')
+        && has('application/views/admin/index.php', 'common/csrf_meta')
+        && has('application/views/theme/default/index.php', 'common/csrf_script')
+        && has('application/views/theme/default/index.php', 'common/csrf_meta');
+});
+
 exit($fails > 0 ? 1 : 0);

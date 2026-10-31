@@ -129,6 +129,8 @@ class User extends Home_Core_Controller{
         $row  = $query->row();
         $num_rows  = $query->num_rows();
         if ($num_rows > 0) {
+            // Prevent session fixation: issue a fresh ID once identity is known.
+            $this->session->sess_regenerate(TRUE);
             $this->session->set_userdata('login_status', '1');
             $this->session->set_userdata('user_id', $row->user_id);
             $this->session->set_userdata('name', $row->name);                     
@@ -166,6 +168,7 @@ class User extends Home_Core_Controller{
             $this->common_model->grab_image($source,$save_to);
             //var_dump($source);
             // create session
+            $this->session->sess_regenerate(TRUE);
             $this->session->set_userdata('login_status', '1');
             $this->session->set_userdata('user_id', $user_id);
             $this->session->set_userdata('name', $name);                     
@@ -347,6 +350,8 @@ class User extends Home_Core_Controller{
                 $this->db->where('user_id', $row->user_id);
                 $this->db->update('user', array('password' => Password::hash((string) $password)));
             endif;
+            // Prevent session fixation: issue a fresh ID after credentials pass.
+            $this->session->sess_regenerate(TRUE);
             $this->session->set_userdata('login_status', '1');
             $this->session->set_userdata('user_id', $row->user_id);
             $this->session->set_userdata('name', $row->name);                     

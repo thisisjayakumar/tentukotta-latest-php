@@ -22,6 +22,7 @@
                     <div id="contact-form">
                         <div class="expMessage"></div>
                         <form class="custom-form" id="request-form" method="post" action="<?php echo base_url('send_movie_requiest'); ?>">
+                        <?php echo csrf_input(); ?>
                             <input type="text" name="name" id="name" value="<?php if($this->session->userdata('name')) { echo $this->session->userdata('name');} ?>" class="form-control half-wdth-field" placeholder="Your Name" >
                             <div id="name_error"></div>
                             <input type="text" name="email" id="email" value="<?php if($this->session->userdata('email')) { echo $this->session->userdata('email');} ?>" class="form-control half-wdth-field pull-right" placeholder="Your Email" >

@@ -1,4 +1,5 @@
 <form action="verify.php" method="POST">
+<?php echo csrf_input(); ?>
   <script
     src="https://checkout.razorpay.com/v1/checkout.js"
     data-key="rzp_test_XJh9ABDQ0x1UQV"

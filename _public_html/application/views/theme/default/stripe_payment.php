@@ -30,6 +30,7 @@
     </head>
     <body>        
         <form method="post" action="<?php echo base_url('subscription/stripe/'.$plan_id);?>">            
+        <?php echo csrf_input(); ?>
             <label>
                 <div id="card-element" class="field is-empty"></div>
                 <span><span>Enter Credit / Debit card</span></span>

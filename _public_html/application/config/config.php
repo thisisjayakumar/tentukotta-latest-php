@@ -255,7 +255,8 @@ $config['sess_expiration'] 			= 0;
 $config['sess_save_path'] 			= 'ci_sessions';
 $config['sess_match_ip'] 			= FALSE;
 $config['sess_time_to_update'] 		= 300;
-$config['sess_regenerate_destroy'] 	= FALSE;
+$config['sess_samesite'] 			= 'Lax';
+$config['sess_regenerate_destroy'] 	= TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -271,7 +272,10 @@ $config['sess_regenerate_destroy'] 	= FALSE;
 $config['cookie_prefix']	= "";
 $config['cookie_domain']	= "";
 $config['cookie_path']		= "/";
-$config['cookie_secure']	= FALSE;
+// Only send cookies over HTTPS. Also honour reverse-proxy TLS termination.
+$config['cookie_secure']	= ( ! empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
+	|| (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+$config['cookie_httponly']	= TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -296,10 +300,19 @@ $config['global_xss_filtering'] = FALSE;
 | 'csrf_cookie_name' = The cookie name
 | 'csrf_expire' = The number in seconds the token should expire.
 */
-$config['csrf_protection'] = FALSE;
-$config['csrf_token_name'] = 'csrf_test_name';
-$config['csrf_cookie_name'] = 'csrf_cookie_name';
-$config['csrf_expire'] = 7200;
+$config['csrf_protection']   = TRUE;
+$config['csrf_token_name']   = 'csrf_token';
+$config['csrf_cookie_name']  = 'csrf_cookie';
+$config['csrf_expire']       = 7200;
+// Keep the token stable for the session: several pages inject it into JS once,
+// so per-request rotation would invalidate the copy held by the browser.
+$config['csrf_regenerate']   = FALSE;
+$config['csrf_exclude_uris'] = array(
+	'^rest-api(/.*)?',              // mobile REST API, authenticated by API key
+	'^api(/.*)?',                   // legacy mobile API, authenticated by API key
+	'^cron(/.*)?',                  // scheduled jobs, authenticated by cron key
+	'^subscription/paypal/ipn',     // PayPal server-to-server IPN callback
+);
 
 /*
 |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <?php $this->load->view('common/csrf_meta'); ?>
         <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc.">
         <meta name="author" content="Coderthemes">
 
@@ -19,6 +20,7 @@
 
 
         <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/jquery-1.11.3-jquery.min.js"></script>
+        <?php $this->load->view('common/csrf_script'); ?>
         <script type="text/javascript" src="<?php echo base_url(); ?>assets/js/validation.min.js"></script>
 
 
@@ -162,6 +164,7 @@
             <div class="panel-body">
                 <div id="error"></div>
             <form  id="signup_form"  method="post" action="<?php echo base_url().'user/forget_password/do_reset' ?>" class="form-horizontal m-t-20" role="form">
+            <?php echo csrf_input(); ?>
                 
                 <div class="form-group ">
                     <div class="col-xs-12">                        
