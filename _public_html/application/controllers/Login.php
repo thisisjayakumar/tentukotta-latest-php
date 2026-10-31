@@ -17,6 +17,8 @@ if (!defined('BASEPATH'))
  *
  **/
  
+require_once(APPPATH . 'libraries/Password.php');
+
 class Login extends Home_Core_Controller{
     
     
@@ -41,7 +43,7 @@ class Login extends Home_Core_Controller{
 		
 		//Ajax username and password request
 		$username 						= $_POST["username"];
-		$password 						= md5($_POST["password"]);
+		$password 						= $_POST["password"];
 		$response['submitted_data'] 	= $_POST;		
 		
 		//Validating login
@@ -80,14 +82,17 @@ class Login extends Home_Core_Controller{
     
     //Validating login from ajax request
     function validate_login($username	=	'' , $password	 =  ''){
-		 $credential	=	array(	'username' => $username , 'password' => $password );
-		 
-		 
-		 // Checking login credential for admin
-        $query = $this->db->get_where('user' , $credential);
-        if ($query->num_rows() > 0) {
+        // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
+        $this->db->where('username', $username);
+        $query = $this->db->get('user');
+        $row   = $query->row();
+        if ($row && Password::verify((string) $password, (string) $row->password)) {
+            // Transparently upgrade legacy/weak hashes after a successful login.
+            if (Password::needs_rehash((string) $row->password)) {
+                $this->db->where('user_id', $row->user_id);
+                $this->db->update('user', array('password' => Password::hash((string) $password)));
+            }
             $this->session->set_userdata('login_status', '1');
-            $row = $query->row();
             // Replace the company name                     
             $this->db->where('user_id', $row->user_id);
             $this->db->update('user', array(
@@ -137,7 +142,7 @@ class Login extends Home_Core_Controller{
             $data['name']           = 'User';
             $data['email']          = $email;
             $data['username']       = $username;
-            $data['password']       = md5($password );
+            $data['password']       = Password::hash((string) $password);
             $data['role']           = 'subscriber';
             $user_exist             = $this->common_model->check_email_username($username,$email);
             if($user_exist){
@@ -175,7 +180,7 @@ class Login extends Home_Core_Controller{
         $data['name']                   = 'User';
         $data['email']                  = $email;
         $data['username']               = $username;
-        $data['password']               = md5($password);
+        $data['password']               = Password::hash((string) $password);
         $data['role']                   = 'subscriber';
         if($username !='' && $email != '' && $_POST["password"] !='' && $username !=NULL && $email != NULL && $_POST["password"] !=NULL)
         {
@@ -230,7 +235,7 @@ class Login extends Home_Core_Controller{
             $password2                  = $this->input->post('password2');
             if($token !='' && $password !='' && $password2 !='' && $password==$password2){
                 $data['token']      = '';
-                $data['password']   = md5($password);
+                $data['password']   = Password::hash((string) $password);
                 $this->db->where('token', $token);
                 $this->db->update('user', $data);
                 $this->session->set_flashdata('success', 'Password Changed');

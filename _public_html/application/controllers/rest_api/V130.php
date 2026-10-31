@@ -18,6 +18,7 @@ if (!defined('BASEPATH'))
  *
  **/
 require_once(APPPATH.'/core/API_Core_Controller.php');
+require_once(APPPATH.'/libraries/Password.php');
 class V130 extends API_Core_Controller{ 
     
 	function __construct(){
@@ -313,14 +314,14 @@ class V130 extends API_Core_Controller{
     // login function
     public function login_post() {
         $email                      =   trim($this->input->post('email'));
-        $password                   =   md5(trim($this->input->post('password')));
+        $password                   =   trim($this->input->post('password'));
         if (filter_var($email, FILTER_VALIDATE_EMAIL) && $password !='' && $password !=NULL):            
             $login_status               = $this->api_v130_model->validate_user( $email ,$password);        
             if ($login_status):
-                $credential    =   array(  'email' => $email , 'password' => $password,'status'=>'1');
+                $credential    =   array(  'email' => $email ,'status'=>'1');
                 $this->db->where($credential);
                 $this->db->update('user', array('last_login' => date('Y-m-d H:i:s')));
-                $user_info              = $this->api_v130_model->get_user_info( $email ,$password);
+                $user_info              = $this->api_v130_model->get_user_info( $email );
                 $response['status']     = 'success';
                 $response['user_id']    = $user_info->user_id;
                 $response['name']       = $user_info->name;
@@ -355,13 +356,12 @@ class V130 extends API_Core_Controller{
         $password                   =   trim($this->input->post('password'));
         //var_dump($password);
         if (filter_var($email, FILTER_VALIDATE_EMAIL) && $password !='' && $password !=NULL && strlen($password) > 3):
-            $md5_password               = md5($password);         
             $signup_ability             = $this->api_v130_model->check_signup_ability_by_email( $email);       
             if ($signup_ability):
-                $this->api_v130_model->create_user($name, $email ,$md5_password);
+                $this->api_v130_model->create_user($name, $email ,$password);
                 $this->load->model('email_model');
                 $this->email_model->account_opening_email($email, $password);
-                $user_info              = $this->api_v130_model->get_user_info( $email ,$md5_password);                        
+                $user_info              = $this->api_v130_model->get_user_info( $email );                        
                 $response['status']     = 'success';
                 $response['user_id']    = $user_info->user_id;
                 $response['name']       = $user_info->name;
@@ -472,7 +472,7 @@ class V130 extends API_Core_Controller{
             $user_id                    =   $this->input->post('id');
             $name                       =   $this->input->post('name');
             $email                      =   $this->input->post('email');
-            $current_password           =   md5($this->input->post('current_password'));
+            $current_password           =   $this->input->post('current_password');
             $password                   =   $this->input->post('password');
             $gender                     =   $this->input->post('gender');      
             $phone                      =   $this->input->post('phone');      
@@ -483,7 +483,7 @@ class V130 extends API_Core_Controller{
                     $data['name']           =   $name;
                 endif;
                 if(!empty($password) && $password !='' && $password !=NULL):
-                    $data['password']           =   md5($password);
+                    $data['password']           =   Password::hash((string) $password);
                 endif;
                 if(!empty($gender) && $gender !='' && $gender !=NULL):
                     if($gender=='Male'):
@@ -525,7 +525,7 @@ class V130 extends API_Core_Controller{
 
             $is_valid_user              = $this->api_v130_model->validate_user_by_id_firebase_auth_uid($user_id,$firebase_auth_uid);        
             if ($is_valid_user):
-                $data['password']           =   md5($password);
+                $data['password']           =   Password::hash((string) $password);
                 $data['is_password_set']    =   1;
                 if($this->api_v130_model->check_password_set_status($user_id) !== TRUE):
                     $this->api_v130_model->update_profile($user_id,$data);
@@ -546,12 +546,12 @@ class V130 extends API_Core_Controller{
     // deactivate account function
     public function deactivate_account_post() {        
         $user_id                    =   trim($this->input->post('id'));
-        $password                   =   md5(trim($this->input->post('password')));
+        $password                   =   trim($this->input->post('password'));
         $reason                     =   trim($this->input->post('reason'));
         if ($password !='' && $password !=NULL && $reason !='' && $reason !=NULL):          
             $user_exist               = $this->api_v130_model->validate_user_by_id_password($user_id ,$password);        
             if ($user_exist):
-                $credential    =   array('user_id' => $user_id , 'password' => $password );
+                $credential    =   array('user_id' => $user_id );
                 $this->db->where($credential);
                 $this->db->update('user', array('status' => '0','deactivate_reason'=>$reason));
                 $response['status']     = 'success';
@@ -1137,7 +1137,8 @@ class V130 extends API_Core_Controller{
                 $firebase_data['email']              = $email;
                 $firebase_data['phone']              = $phone;
                 $firebase_data['gender']             = $gender;
-                $firebase_data['password']           = md5(uniqid());
+                $firebase_data['password']           = Password::hash(Password::random());
+                $firebase_data['is_password_set']    = 0;
                 $firebase_data['firebase_auth_uid']  = $uid;
                 $firebase_data['role']               = 'subscriber';
                 $firebase_data['join_date']          = date('Y-m-d H:i:s');

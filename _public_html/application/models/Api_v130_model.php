@@ -16,6 +16,8 @@
  **/
  
 
+require_once(APPPATH . 'libraries/Password.php');
+
 class Api_v130_model extends CI_Model {
     public  $default_limit  =   24;
     
@@ -1461,15 +1463,18 @@ class Api_v130_model extends CI_Model {
 
     // validate login  function
     function validate_user($email   =   '' , $password   =  ''){
+        // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
         $result = FALSE;
-        $credential    =   array(  'email' => $email , 'password' => $password );
+        $credential    =   array('email' => $email );
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
-            //$this->db->where($credential);
-            //$this->db->update('user', array('last_login' => date('Y-m-d H:i:s')));
-            $result = TRUE;
-        endif;    
-        return $result;      
+            $row = $query->row();
+            if (Password::verify((string) $password, (string) $row->password)):
+                $this->upgrade_password_hash($row->user_id, $password);
+                $result = TRUE;
+            endif;
+        endif;
+        return $result;
     }
 
 
@@ -1511,13 +1516,25 @@ class Api_v130_model extends CI_Model {
     // validate login  function
     function validate_user_by_id_password($user_id='' , $password=''){
         $result = FALSE;
-        $credential    =   array(  'user_id' => $user_id , 'password' => $password );
+        $credential    =   array('user_id' => $user_id );
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
-            $this->db->where($credential);
-            $result = TRUE;
-        endif;   
-        return $result;      
+            $row = $query->row();
+            if (Password::verify((string) $password, (string) $row->password)):
+                $this->upgrade_password_hash($row->user_id, $password);
+                $result = TRUE;
+            endif;
+        endif;
+        return $result;
+    }
+
+    // Transparently replace a legacy/weak hash after a successful login.
+    function upgrade_password_hash($user_id = '', $plain = ''){
+        $row = $this->db->select('password')->get_where('user', array('user_id' => $user_id))->row();
+        if ($row && Password::needs_rehash((string) $row->password)):
+            $this->db->where('user_id', $user_id);
+            $this->db->update('user', array('password' => Password::hash((string) $plain)));
+        endif;
     }
 
 
@@ -1559,9 +1576,15 @@ class Api_v130_model extends CI_Model {
 
     // get user info  function
     function get_user_info($email   =   '' , $password   =  ''){
-        $credential    =   array(  'email' => $email , 'password' => $password );
-        $result = $this->db->get_where('user' , $credential)->row();   
-        return $result;     
+        $this->db->where('email', $email);
+        $result = $this->db->get('user')->row();
+        // If a plaintext password is supplied, only return a matching record.
+        if ($result !== NULL && $password !== '' && $password !== NULL):
+            if (!Password::verify((string) $password, (string) $result->password)):
+                return NULL;
+            endif;
+        endif;
+        return $result;
     }
 
     // get user info  function
@@ -1597,11 +1620,10 @@ class Api_v130_model extends CI_Model {
 
     // get user info  function
     function create_user($name='',$email   =   '' , $password   =  ''){
-        //$credential    =   array(  'email' => $email , 'password' => $password );
         $data['name']           = $name;
         $data['username']       = $email;
         $data['email']          = $email;
-        $data['password']       = $password;
+        $data['password']       = Password::hash((string) $password);
         $data['role']           = 'subscriber';
         $data['join_date']      = date('Y-m-d H:i:s');
         $data['last_login']     = date('Y-m-d H:i:s');
@@ -1623,12 +1645,12 @@ class Api_v130_model extends CI_Model {
 
     // get user info  function
     function create_user_by_phone_no($data=array()){
-        //$credential    =   array(  'email' => $email , 'password' => $password );
+        $phone                  = isset($data['phone']) ? $data['phone'] : '';
         $data['name']           = 'No name set';
         $data['username']       = $phone;
         $data['email']          = $phone;
         $data['phone']          = $phone;
-        $data['password']       = md5($phone);
+        $data['password']       = Password::hash((string) $phone);
         $data['role']           = 'subscriber';
         $data['join_date']      = date('Y-m-d H:i:s');
         $data['last_login']     = date('Y-m-d H:i:s');
@@ -1974,7 +1996,7 @@ class Api_v130_model extends CI_Model {
 
     public function reset_password($email='',$password=''){
         $response                   = TRUE;
-        $data['password']           = md5($password);
+        $data['password']           = Password::hash((string) $password);
         $this->db->where('email', $email);
         $this->db->update('user', $data);     
         return $response;

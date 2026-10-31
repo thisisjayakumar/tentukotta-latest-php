@@ -3,6 +3,8 @@ if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
 
+require_once(APPPATH . 'libraries/Password.php');
+
 class Admin extends Admin_Core_Controller {   
     
     function __construct() {
@@ -1975,7 +1977,7 @@ class Admin extends Admin_Core_Controller {
             demo_check();
             $data['name']           = $this->input->post('name');
             // $data['username']       = $this->input->post('username');
-            $data['password']       = md5($this->input->post('password'));
+            $data['password']       = Password::hash((string) $this->input->post('password'));
             $data['email']          = $this->input->post('email');
             $data['role']           = $this->input->post('role');           
             
@@ -1988,7 +1990,7 @@ class Admin extends Admin_Core_Controller {
             $data['name']           = $this->input->post('name');
             // $data['username']       = $this->input->post('username');
             if($this->input->post('password')!='' || $this->input->post('password')!=NULL){
-                $data['password']   = md5($this->input->post('password'));
+                $data['password']   = Password::hash((string) $this->input->post('password'));
             }
             
             $data['email']          = $this->input->post('email');
@@ -3702,22 +3704,24 @@ class Admin extends Admin_Core_Controller {
         }
         if ($param1 == 'change_password'){
             demo_check();
-            $password               = md5($this->input->post('password'));
-            $new_password           = md5($this->input->post('new_password'));
-            $retype_new_password    = md5($this->input->post('retype_new_password'));
-            
+            $password               = $this->input->post('password');
+            $new_password           = $this->input->post('new_password');
+            $retype_new_password    = $this->input->post('retype_new_password');
+
             $current_password       = $this->db->get_where('user', array(
                 'user_id' => $this->session->userdata('user_id')
             ))->row()->password;
-            
-            if ($current_password == $password && $new_password == $retype_new_password) {
+
+            $current_ok             = Password::verify((string) $password, (string) $current_password);
+
+            if ($current_ok && $new_password === $retype_new_password) {
                 $this->db->where('user_id', $this->session->userdata('user_id'));
                 $this->db->update('user', array(
-                    'password' => $new_password
+                    'password' => Password::hash((string) $new_password)
                 ));
                 $this->session->set_flashdata('success', trans('password_changed'));
             }
-            elseif ($current_password !=$password ){
+            elseif (!$current_ok){
                 $this->session->set_flashdata('error', trans('old_password_wrong'));
 
             } else {

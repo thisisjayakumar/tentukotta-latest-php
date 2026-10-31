@@ -146,4 +146,69 @@ check('store_payment_info_post disabled pending verification', fn() => has(
 check('tv user lookup redacts private fields', fn() => has(
     'application/controllers/rest_api/V130.php', 'public_user_fields'));
 
+// -----------------------------------------------------------------------------
+// TASK 6: password hashing migration (Argon2id + transparent upgrade)
+// -----------------------------------------------------------------------------
+check('Password library exists', fn() => is_file(root() . '/application/libraries/Password.php'));
+check('no md5( anywhere in controllers or models', function () {
+    foreach (['application/controllers', 'application/models'] as $dir) {
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+            root() . '/' . $dir, FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $f) {
+            if ($f->getExtension() !== 'php') continue;
+            if (str_contains(file_get_contents($f->getPathname()), 'md5(')) return false;
+        }
+    }
+    return true;
+});
+check('Password uses password_hash', fn() => str_contains(src('application/libraries/Password.php'), 'password_hash'));
+check('Password verifies legacy MD5 and Argon2id', function () {
+    if (!defined('BASEPATH')) define('BASEPATH', root() . '/system/');
+    require_once root() . '/application/libraries/Password.php';
+
+    $legacy = md5('secret');
+    if (!Password::verify('secret', $legacy)) return false;
+    if (Password::verify('wrong', $legacy)) return false;
+
+    $modern = Password::hash('secret');
+    if (!Password::verify('secret', $modern)) return false;
+    if (Password::verify('wrong', $modern)) return false;
+
+    if (!Password::needs_rehash($legacy)) return false;
+    if (Password::needs_rehash($modern)) return false;
+
+    return Password::needs_rehash('');
+});
+check('login paths upgrade legacy hashes', function () {
+    $files = [
+        'application/controllers/Login.php',
+        'application/controllers/User.php',
+        'application/models/Api_v100_model.php',
+        'application/models/Api_v130_model.php',
+        'application/models/Legacy_api_model.php',
+    ];
+    foreach ($files as $f) {
+        $s = src($f);
+        if (!str_contains($s, 'Password::verify') || !str_contains($s, 'needs_rehash')) return false;
+    }
+    return true;
+});
+check('password writes go through Password::hash', function () {
+    foreach (['application/controllers/Login.php', 'application/controllers/User.php', 'application/controllers/Admin.php'] as $f) {
+        if (!str_contains(src($f), 'Password::hash')) return false;
+    }
+    return true;
+});
+check('firebase set_password still requires firebase_auth_uid', function () {
+    $s = src('application/controllers/rest_api/V130.php');
+    if (!preg_match('/function\s+set_password_post\s*\([^)]*\)\s*\{(.*?)\n\s{4}\}/s', $s, $m)) return false;
+    return str_contains($m[1], 'firebase_auth_uid') && str_contains($m[1], 'validate_user_by_id_firebase_auth_uid');
+});
+check('social signups never derive a password from email', function () {
+    $s = src('application/controllers/User.php');
+    return !str_contains($s, "Password::hash(\$user_info['email'])")
+        && !str_contains($s, 'Password::hash($email)')
+        && str_contains($s, 'is_password_set');
+});
+
 exit($fails > 0 ? 1 : 0);

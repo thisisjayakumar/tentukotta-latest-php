@@ -20,6 +20,8 @@ if (!defined('BASEPATH'))
 
 
 
+require_once(APPPATH . 'libraries/Password.php');
+
 class User extends Home_Core_Controller{
     public function __construct(){
         parent::__construct();
@@ -145,7 +147,9 @@ class User extends Home_Core_Controller{
         }else{
             $name                   = $user_info['first_name'].' '.$user_info['last_name'];
             $data['name']           = $name;
-            $data['password']       = md5($user_info['email']);
+            // Never derive a password from a public identifier.
+            $data['password']        = Password::hash(Password::random());
+            $data['is_password_set'] = 0;
             $data['email']          = $user_info['email'];
             $data['role']           = 'subscriber';
             $data['join_date']      = date('Y-m-d H:i:s');
@@ -165,7 +169,7 @@ class User extends Home_Core_Controller{
             $this->session->set_userdata('login_status', '1');
             $this->session->set_userdata('user_id', $user_id);
             $this->session->set_userdata('name', $name);                     
-            $this->db->where('user_id', $row->user_id);
+            $this->db->where('user_id', $user_id);
             $this->db->update('user', array('last_login' => date('Y-m-d H:i:s')));
             $this->session->set_userdata('user_is_login', '1');
             $this->session->set_userdata('login_type', 'subscriber');
@@ -191,7 +195,7 @@ class User extends Home_Core_Controller{
                 $data['name']           = $name;
                 $data['username']       = $email;
                 $data['email']          = $email;
-                $data['password']       = md5($password );
+                $data['password']       = Password::hash((string) $password);
                 $data['role']           = 'subscriber';
                 $this->form_validation->set_rules('name', 'Name', 'required|min_length[5]');
                 $this->form_validation->set_rules('email', 'Email', 'required|min_length[5]|valid_email|is_unique[user.email]');
@@ -305,7 +309,7 @@ class User extends Home_Core_Controller{
 
             else{
                 $data['token']      = '';
-                $data['password']   = md5($password);
+                $data['password']   = Password::hash((string) $password);
                 $this->db->where('token', $token);
                 $this->db->update('user', $data);
                 $this->load->model('email_model');
@@ -334,10 +338,15 @@ class User extends Home_Core_Controller{
         }   
     // validate login  function
     function validate_login($email   =   '' , $password   =  ''){
-        $credential    =   array(  'email' => $email , 'password' => $password );
-        $query = $this->db->get_where('user' , $credential);
-        $row = $query->row();
-        if ($query->num_rows() > 0):
+        // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
+        $this->db->where('email', $email);
+        $row = $this->db->get('user')->row();
+        if ($row && Password::verify((string) $password, (string) $row->password)):
+            // Transparently upgrade legacy/weak hashes after a successful login.
+            if (Password::needs_rehash((string) $row->password)):
+                $this->db->where('user_id', $row->user_id);
+                $this->db->update('user', array('password' => Password::hash((string) $password)));
+            endif;
             $this->session->set_userdata('login_status', '1');
             $this->session->set_userdata('user_id', $row->user_id);
             $this->session->set_userdata('name', $row->name);                     
@@ -463,22 +472,24 @@ class User extends Home_Core_Controller{
         if ($this->session->userdata('login_status') != 1)
             redirect(base_url() . 'login', 'refresh');
         if ($param1 == 'update') {
-            $password               = md5($this->input->post('password'));
-            $new_password           = md5($this->input->post('new_password'));
-            $retype_new_password    = md5($this->input->post('retype_new_password'));
+            $password               = $this->input->post('password');
+            $new_password           = $this->input->post('new_password');
+            $retype_new_password    = $this->input->post('retype_new_password');
             
             $current_password       = $this->db->get_where('user', array(
                 'user_id' => $this->session->userdata('user_id')
             ))->row()->password;
-            
-            if ($current_password == $password && $new_password == $retype_new_password) {
+
+            $current_ok             = Password::verify((string) $password, (string) $current_password);
+
+            if ($current_ok && $new_password === $retype_new_password) {
                 $this->db->where('user_id', $this->session->userdata('user_id'));
                 $this->db->update('user', array(
-                    'password' => $new_password
+                    'password' => Password::hash((string) $new_password)
                 ));
                 $this->session->set_flashdata('success', 'Password changed.');
             }
-            elseif ($current_password !=$password ){
+            elseif (!$current_ok){
                 $this->session->set_flashdata('error', 'Old password not correct.');
 
             } else {
@@ -496,7 +507,7 @@ class User extends Home_Core_Controller{
     // login function
     function do_login(){
         $email                          = $this->input->post('email');
-        $password                       = md5($this->input->post('password'));
+        $password                       = $this->input->post('password');
         $this->form_validation->set_rules('email', 'Email', 'required|min_length[5]|valid_email');
         $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
 
@@ -605,7 +616,8 @@ class User extends Home_Core_Controller{
     $query                          = $this->db->get_where('user' , array('email' => $email));
         if ($query->num_rows() < 1) {
             $data['name']           = $name;
-            $data['password']       = md5($email);
+            $data['password']        = Password::hash(Password::random());
+            $data['is_password_set'] = 0;
             $data['email']          = $email;
             $data['email']          = $email;
             $data['role']           = 'subscriber';
