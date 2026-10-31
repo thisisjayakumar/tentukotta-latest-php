@@ -59,6 +59,21 @@ function check(string $name, callable $fn): void
 // These two lines are temporary and get removed once the environment is set.
 // -----------------------------------------------------------------------------
 check('harness: index.php exists', fn() => is_file(root() . '/index.php'));
-check('harness: impossible assertion fails', fn() => false);
+
+// -----------------------------------------------------------------------------
+// TASK 1: no .sql dump exposed under the web root
+// -----------------------------------------------------------------------------
+check('no .sql files under web root', function () {
+    $it = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator(root(), RecursiveDirectoryIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if (strtolower($f->getExtension()) === 'sql') {
+            return false;
+        }
+    }
+    return true;
+});
+check('.htaccess denies db_backup, application, system', fn() => has('.htaccess', 'db_backup'));
+check('.htaccess denies backup extensions', fn() => has('.htaccess', 'bak'));
 
 exit($fails > 0 ? 1 : 0);

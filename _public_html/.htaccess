@@ -7,6 +7,16 @@ RewriteRule ^(.*)$ index.php?/$1 [L]
 RewriteCond %{HTTP:Authorization} ^(.+)$
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
+# --- security hardening (security-refactoring plan, Task 1) ---
+<IfModule mod_rewrite.c>
+    # Deny access to backup, application and system directories
+    RewriteRule ^(db_backup|application|system)(/|$) - [F,L]
+    # Deny access to backup/leak-prone file extensions
+    RewriteRule \.(sql|bak|old|zip|tar|gz|log|env|sh|md)$ - [F,L,NC]
+</IfModule>
+Options -Indexes
+# ----------------------------------------------------------------
+
 #remove comments from bellow if you want to upload upto 5GB file
 
 #	php_value upload_max_filesize 5120M
