@@ -46,9 +46,9 @@
                                 $url = base_url('admin/').'manage_live_tv/edit/'.$row['id'];
                             endif;
                         ?>
-                        <td><strong><a href="<?php echo $url; ?>"><?php echo $title2; ?></a></strong></td>
-                        <td><?php echo $row['issue'];?></td>
-                        <td><?php echo $row['message'];?></td>
+                        <td><strong><a href="<?php echo $url; ?>"><?php echo e($title2); ?></a></strong></td>
+                        <td><?php echo e($row['issue']);?></td>
+                        <td><?php echo e($row['message']);?></td>
                         <td><?php echo $row['report_datetime'];?></td>
                         <td><?php echo $row['status'];?></td>
                     </tr>

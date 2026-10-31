@@ -30,10 +30,10 @@
                                 </ul>
                             </div>
                         </td>
-                        <td><strong><?php echo $row['name'];?></strong></td>
-                        <td><?php echo $row['email'];?></td>
-                        <td><?php echo $row['movie_name'];?></td>
-                        <td><?php echo $row['message'];?></td>
+                        <td><strong><?php echo e($row['name']);?></strong></td>
+                        <td><?php echo e($row['email']);?></td>
+                        <td><?php echo e($row['movie_name']);?></td>
+                        <td><?php echo e($row['message']);?></td>
                         <td><?php echo $row['request_datetime'];?></td>
                         <td><?php echo $row['status'];?></td>
                     </tr>

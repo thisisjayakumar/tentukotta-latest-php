@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12 col-sm-12 col-xs-12">
                 <div class="page-title">
-                    <h1 class="text-uppercase"><?php echo '"'.$search_keyword.'" search results'; ?></h1>
+                    <h1 class="text-uppercase"><?php echo '"'.e($search_keyword).'" search results'; ?></h1>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
             </div>
             <!-- End All Movies -->
             <?php }else{
-                echo '<h4>Nothing found by "'.$search_keyword.'"</h4>';
+                echo '<h4>Nothing found by "'.e($search_keyword).'"</h4>';
             } ?>
         </div>
         <?php if($total_rows > 24){

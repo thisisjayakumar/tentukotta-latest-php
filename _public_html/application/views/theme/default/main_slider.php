@@ -37,10 +37,10 @@
               foreach ($slider_videos as $videos):
           ?>
             <div class="swiper-slide" style="background-image: url('<?php echo $this->common_model->get_video_poster_url($videos->videos_id); ?>');">
-                <a href="<?php echo base_url('watch/'.$videos->slug).'.html';?>" class="slide-link" title="<?php echo $videos->title;?>"> </a>
+                <a href="<?php echo base_url('watch/'.$videos->slug).'.html';?>" class="slide-link" title="<?php echo e($videos->title);?>"> </a>
                 <span class="slide-caption">
-                  <h2><?php echo $videos->title;?></h2>
-                  <p class="sc-desc"><?php echo substr(strip_tags($videos->description),0,220);?></p>
+                  <h2><?php echo e($videos->title);?></h2>
+                  <p class="sc-desc"><?php echo e(substr(strip_tags($videos->description),0,220));?></p>
                   <div class="slide-caption-info">
                     <div class="block">
                       <strong><?php echo trans('genre'); ?>: </strong>
@@ -48,12 +48,12 @@
                               $i = 0;
                               $genres =explode(',', $videos->genre);                                                
                               foreach ($genres as $genre_id):
-                              if($i>0){ echo ',';} $i++;?><?php echo $this->genre_model->get_genre_name_by_id($genre_id);?>
+                              if($i>0){ echo ',';} $i++;?><?php echo e($this->genre_model->get_genre_name_by_id($genre_id));?>
                       <?php endforeach; endif;?>
                     </div>
-                    <div class="block"><strong><?php echo trans('duration'); ?>:</strong> <?php echo $videos->runtime; ?></div>
+                    <div class="block"><strong><?php echo trans('duration'); ?>:</strong> <?php echo e($videos->runtime); ?></div>
                     <div class="block"><strong><?php echo trans('release'); ?>:</strong> 2019</div>
-                    <div class="block"><strong>IMDb:</strong> <?php echo $videos->imdb_rating;?></div>
+                    <div class="block"><strong>IMDb:</strong> <?php echo e($videos->imdb_rating);?></div>
                   </div>
                   <a href="<?php echo base_url('watch/'.$videos->slug).'.html';?>" >
                     <div class="btn btn-sm btn-success mt20" style="margin-top: 10px;"><?php echo trans('watch_now') ?></div>
@@ -75,12 +75,12 @@
               endif;
         ?>
               <div class="swiper-slide" style="background-image: url('<?php echo $slider->image_link;?>');">
-                <a href="<?php echo $action_url;?>" class="slide-link" title="<?php echo $slider->title;?>"> </a>
+                <a href="<?php echo $action_url;?>" class="slide-link" title="<?php echo e($slider->title);?>"> </a>
                 <span class="slide-caption">
-                  <h2><?php echo $slider->title;?></h2>
-                  <p class="sc-desc"><?php echo $slider->description;?></p>
+                  <h2><?php echo e($slider->title);?></h2>
+                  <p class="sc-desc"><?php echo e($slider->description);?></p>
                   <a href="<?php echo $action_url;?>" >
-                    <div class="btn btn-sm btn-success mt20" style="margin-top: 10px;"><?php echo $slider->action_btn_text; ?></div>
+                    <div class="btn btn-sm btn-success mt20" style="margin-top: 10px;"><?php echo e($slider->action_btn_text); ?></div>
                   </a>
                 </span>
             </div>
@@ -94,10 +94,10 @@
               $action_url = base_url('live-tv/'.$slider->slug.'.html');
         ?>
               <div class="swiper-slide" style="background-image: url('<?php echo $this->live_tv_model->get_tv_poster($slider->poster);?>');">
-                <a href="<?php echo $action_url;?>" class="slide-link" title="<?php echo $slider->tv_name;?>"> </a>
+                <a href="<?php echo $action_url;?>" class="slide-link" title="<?php echo e($slider->tv_name);?>"> </a>
                 <span class="slide-caption">
-                  <h2><?php echo $slider->tv_name;?></h2>
-                  <p class="sc-desc"><?php echo $slider->description;?></p>
+                  <h2><?php echo e($slider->tv_name);?></h2>
+                  <p class="sc-desc"><?php echo e($slider->description);?></p>
                   <a href="<?php echo $action_url;?>" >
                     <div class="btn btn-sm btn-success mt20" style="margin-top: 10px;"><?php echo trans("watch_now");?></div>
                   </a>

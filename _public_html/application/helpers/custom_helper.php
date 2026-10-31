@@ -64,6 +64,14 @@ if (!function_exists('str_slug')) {
     }
 }
 
+// Escape a value for HTML output (text and quoted attributes).
+if ( ! function_exists('e')):
+	function e($value)
+	{
+		return html_escape($value ?? '');
+	}
+endif;
+
 // CSRF hidden input for hand-written <form> tags (form_open() adds its own).
 if ( ! function_exists('csrf_input')):
 	function csrf_input()

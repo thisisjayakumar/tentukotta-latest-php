@@ -48,7 +48,7 @@
 		      	<?php $this->load->view($theme_dir.'right_menu_item'); ?> 
 		      <form class="navbar-form navbar-left" method="get" action="<?php echo base_url('search'); ?>">
 		        <div class="input-group">
-		          <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo $search_keyword;} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
+		          <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
 		          <span class="input-group-btn">
 		            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
 		          </span>
@@ -69,7 +69,7 @@
               <div class="col-md-4 m-t-10">
                   <form class="navbar-form navbar-left" method="get" action="<?php echo base_url('search'); ?>">
                       <div class="input-group">
-                        <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo $search_keyword;} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
+                        <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
                         <span class="input-group-btn">
                           <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
                         </span>
@@ -180,7 +180,7 @@
             
             <form class="navbar-form navbar-right" method="get" action="<?php echo base_url('search'); ?>">
               <div class="input-group">
-                <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo $search_keyword;} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
+                <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
                 <span class="input-group-btn">
                   <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
                 </span>
@@ -250,7 +250,7 @@
         <?php $this->load->view($theme_dir.'right_menu_item'); ?> 
       <form class="navbar-form navbar-left" method="get" action="<?php echo base_url('search'); ?>">
         <div class="input-group">
-          <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo $search_keyword;} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
+          <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
           <span class="input-group-btn">
             <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
           </span>
@@ -316,7 +316,7 @@
           <?php $this->load->view($theme_dir.'right_menu_item'); ?> 
         <form class="navbar-form navbar-left" method="get" action="<?php echo base_url('search'); ?>">
           <div class="input-group">
-            <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo $search_keyword;} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
+            <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
             <span class="input-group-btn">
               <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
             </span>

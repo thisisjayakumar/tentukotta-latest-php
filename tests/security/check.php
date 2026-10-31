@@ -290,4 +290,36 @@ check('admin and theme pages inject the csrf token', function () {
         && has('application/views/theme/default/index.php', 'common/csrf_meta');
 });
 
+// -----------------------------------------------------------------------------
+// TASK 9: output escaping (stored and reflected XSS)
+// -----------------------------------------------------------------------------
+check('escape helper exists', fn() => has('application/helpers/custom_helper.php', 'function e('));
+check('slider output escaped', function () {
+    $s = src('application/views/theme/default/main_slider.php');
+    return str_contains($s, 'e($slider->title)')
+        && str_contains($s, 'e($videos->title)')
+        && str_contains($s, 'e($slider->description)');
+});
+check('search keyword escaped', function () {
+    $s = src('application/views/theme/default/search_results.php');
+    return substr_count($s, 'e($search_keyword)') >= 2
+        && !preg_match('/echo\s+\$search_keyword/', $s)
+        && !preg_match("/\\.\\s*\\\$search_keyword\\s*\\./", $s);
+});
+check('search box value escaped', fn() => has(
+    'application/views/theme/default/header.php', 'echo e($search_keyword)'));
+check('request queue escaped', function () {
+    $s = src('application/views/admin/request_manage.php');
+    foreach (['name', 'email', 'movie_name', 'message'] as $field) {
+        if (!str_contains($s, "e(\$row['" . $field . "'])")) return false;
+    }
+    return true;
+});
+check('report issue and message escaped', function () {
+    $s = src('application/views/admin/report_manage.php');
+    return str_contains($s, "e(\$row['issue'])")
+        && str_contains($s, "e(\$row['message'])")
+        && str_contains($s, 'e($title2)');
+});
+
 exit($fails > 0 ? 1 : 0);
