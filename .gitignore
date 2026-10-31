@@ -1,6 +1,7 @@
 _public_html/uploads/*
 !_public_html/uploads/index.html
 !_public_html/uploads/.htaccess
+!_public_html/uploads/web.config
 _public_html/db_backup/
 _public_html/application/logs/*
 !_public_html/application/logs/index.html

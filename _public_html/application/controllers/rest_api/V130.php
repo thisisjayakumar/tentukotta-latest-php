@@ -499,7 +499,7 @@ class V130 extends API_Core_Controller{
 
                 $this->api_v130_model->update_profile($user_id,$data);
                 if(!empty($_FILES['photo']))
-                    move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/user_image/' .$user_id.'.jpg');
+                    safe_image_upload($_FILES['photo'], 'uploads/user_image/' .$user_id.'.jpg');
                 $response['status']     = 'success';
                 $response['data']       = 'Profile updated successfully.';
             else:

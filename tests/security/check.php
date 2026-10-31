@@ -322,4 +322,40 @@ check('report issue and message escaped', function () {
         && str_contains($s, 'e($title2)');
 });
 
+// -----------------------------------------------------------------------------
+// TASK 10: upload hardening
+// -----------------------------------------------------------------------------
+check('uploads denies php execution', function () {
+    $p = root() . '/uploads/.htaccess';
+    if (!is_file($p)) return false;
+    $s = file_get_contents($p);
+    return str_contains($s, 'php_flag engine off') && str_contains($s, 'RemoveHandler');
+});
+check('uploads ships an IIS web.config', function () {
+    $p = root() . '/uploads/web.config';
+    if (!is_file($p)) return false;
+    $s = file_get_contents($p);
+    return str_contains($s, '<clear') && str_contains($s, '.php');
+});
+check('safe_image_upload validates content, size and type', function () {
+    $s = src('application/helpers/custom_helper.php');
+    return str_contains($s, 'function safe_image_upload')
+        && str_contains($s, 'getimagesize')
+        && str_contains($s, 'UPLOAD_ERR_OK')
+        && str_contains($s, 'image/jpeg')
+        && str_contains($s, 'imagecreatefromstring')
+        && str_contains($s, '5242880');
+});
+check('no raw move_uploaded_file in app controllers', function () {
+    foreach (['Admin.php', 'User.php', 'Legacy_api.php', 'rest_api/V100.php', 'rest_api/V130.php'] as $f) {
+        if (str_contains(src('application/controllers/' . $f), 'move_uploaded_file(')) return false;
+    }
+    return true;
+});
+check('admin image uploads go through safe_image_upload', function () {
+    $s = src('application/controllers/Admin.php');
+    return substr_count($s, 'safe_image_upload(') >= 20
+        && str_contains($s, 'safe_subtitle_upload(');
+});
+
 exit($fails > 0 ? 1 : 0);

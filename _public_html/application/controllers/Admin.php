@@ -64,7 +64,7 @@ class Admin extends Admin_Core_Controller {
                 $this->common_model->grab_image($image_source,$save_to);
             }
             if(isset($_FILES['image']) && $_FILES['image']['name']!=''){
-                move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/country/'.$insert_id.'.png');
+                safe_image_upload($_FILES['image'], 'uploads/country/'.$insert_id.'.png');
             }
             $this->session->set_flashdata('success', trans('add_success'));
             redirect($this->agent->referrer());
@@ -85,7 +85,7 @@ class Admin extends Admin_Core_Controller {
                 $this->common_model->grab_image($image_source,$save_to);
             }
             if(isset($_FILES['image']) && $_FILES['image']['name']!=''){
-                move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/country/'.$param2.'.png');
+                safe_image_upload($_FILES['image'], 'uploads/country/'.$param2.'.png');
             }
 
             $this->session->set_flashdata('success', trans('update_success'));
@@ -121,7 +121,7 @@ class Admin extends Admin_Core_Controller {
                 $this->common_model->grab_image($image_source,$save_to);
             }
             if(isset($_FILES['image']) && $_FILES['image']['name']!=''){
-                move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/genre/'.$insert_id.'.png');
+                safe_image_upload($_FILES['image'], 'uploads/genre/'.$insert_id.'.png');
             }
             $this->session->set_flashdata('success', trans('add_success'));
             redirect($this->agent->referrer());
@@ -143,7 +143,7 @@ class Admin extends Admin_Core_Controller {
                 $this->common_model->grab_image($image_source,$save_to);
             }
             if(isset($_FILES['image']) && $_FILES['image']['name']!=''){
-                move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/genre/'.$param2.'.png');
+                safe_image_upload($_FILES['image'], 'uploads/genre/'.$param2.'.png');
             }
             $this->session->set_flashdata('success', trans('update_success'));
             redirect($this->agent->referrer());
@@ -284,7 +284,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->insert('slider', $data);
             $insert_id = $this->db->insert_id();
             if(isset($_FILES['image']) && $_FILES['image']['name']!=''){
-                move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/sliders/slider-'.$insert_id.'.jpg');
+                safe_image_upload($_FILES['image'], 'uploads/sliders/slider-'.$insert_id.'.jpg');
                 $data['image_link']     =       base_url().'uploads/sliders/slider-'.$insert_id.'.jpg';
             }
             $this->db->where('slider_id', $insert_id);
@@ -318,7 +318,7 @@ class Admin extends Admin_Core_Controller {
             }
 
             if(isset($_FILES['image']) && $_FILES['image']['name']!=''){
-                move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/sliders/slider-'.$param2.'.jpg');
+                safe_image_upload($_FILES['image'], 'uploads/sliders/slider-'.$param2.'.jpg');
                 $data['image_link']     =       base_url().'uploads/sliders/slider-'.$param2.'.jpg';
             }
             $data['slug']               = url_title($this->input->post('title'), 'dash', TRUE);
@@ -436,11 +436,11 @@ class Admin extends Admin_Core_Controller {
             }
             $data_update['slug']        = $slug;            
             if(isset($_FILES['thumbnail']) && $_FILES['thumbnail']['name']!=''){
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], 'uploads/video_thumb/'.$insert_id.'.jpg');                
+                safe_image_upload($_FILES['thumbnail'], 'uploads/video_thumb/'.$insert_id.'.jpg');                
             }
 
             if(isset($_FILES['poster_file']) && $_FILES['poster_file']['name']!=''){
-                move_uploaded_file($_FILES['poster_file']['tmp_name'], 'uploads/poster_image/'.$insert_id.'.jpg');                                
+                safe_image_upload($_FILES['poster_file'], 'uploads/poster_image/'.$insert_id.'.jpg');                                
             }
 
             if($this->input->post('thumb_link')!=''){ 
@@ -540,11 +540,11 @@ class Admin extends Admin_Core_Controller {
             }
             $data_update['slug']               = $slug;            
             if(isset($_FILES['thumbnail']) && $_FILES['thumbnail']['name']!=''){
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], 'uploads/video_thumb/'.$param2.'.jpg');                
+                safe_image_upload($_FILES['thumbnail'], 'uploads/video_thumb/'.$param2.'.jpg');                
             }
 
             if(isset($_FILES['poster_file']) && $_FILES['poster_file']['name']!=''){
-                move_uploaded_file($_FILES['poster_file']['tmp_name'], 'uploads/poster_image/'.$param2.'.jpg');                                
+                safe_image_upload($_FILES['poster_file'], 'uploads/poster_image/'.$param2.'.jpg');                                
             }
 
             if($this->input->post('thumb_link')!=''){ 
@@ -722,11 +722,11 @@ class Admin extends Admin_Core_Controller {
             }
             $data_update['slug']               = $slug;            
             if(isset($_FILES['thumbnail']) && $_FILES['thumbnail']['name']!=''){
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], 'uploads/episodes/'.$insert_id.'.jpg');                
+                safe_image_upload($_FILES['thumbnail'], 'uploads/episodes/'.$insert_id.'.jpg');                
             }
 
             if(isset($_FILES['poster_file']) && $_FILES['poster_file']['name']!=''){
-                move_uploaded_file($_FILES['poster_file']['tmp_name'], 'uploads/poster_image/'.$insert_id.'.jpg');                                
+                safe_image_upload($_FILES['poster_file'], 'uploads/poster_image/'.$insert_id.'.jpg');                                
             }
 
             if($this->input->post('thumb_link')!=''){ 
@@ -824,11 +824,11 @@ class Admin extends Admin_Core_Controller {
             }
             $data_update['slug']               = $slug;            
             if(isset($_FILES['thumbnail']) && $_FILES['thumbnail']['name']!=''){
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], 'uploads/episodes/'.$param2.'.jpg');                
+                safe_image_upload($_FILES['thumbnail'], 'uploads/episodes/'.$param2.'.jpg');                
             }
 
             if(isset($_FILES['poster_file']) && $_FILES['poster_file']['name']!=''){
-                move_uploaded_file($_FILES['poster_file']['tmp_name'], 'uploads/poster_image/'.$param2.'.jpg');                                
+                safe_image_upload($_FILES['poster_file'], 'uploads/poster_image/'.$param2.'.jpg');                                
             }
 
             if($this->input->post('thumb_link')!=''){ 
@@ -1145,7 +1145,7 @@ class Admin extends Admin_Core_Controller {
             if($ext =='vtt')
                 $is_subtitle        = TRUE;
             $subtitle_path          = 'uploads/subtitles/'.$videos_id.'_'.$video_file_id.'_'.$this->generate_random_string().'.vtt';
-            move_uploaded_file($_FILES['vtt_file']['tmp_name'], $subtitle_path);
+            safe_subtitle_upload($_FILES['vtt_file'], $subtitle_path);
             $data['src']            = base_url().$subtitle_path;                               
         }else if(isset($vtt_url) && $vtt_url !=''){
             $data['src']            = $vtt_url;
@@ -1187,7 +1187,7 @@ class Admin extends Admin_Core_Controller {
             if($ext =='vtt')
                 $is_subtitle        = TRUE;
             $subtitle_path          = 'uploads/subtitles/'.$videos_id.'_'.$episodes_id.'_'.$this->generate_random_string().'.vtt';
-            move_uploaded_file($_FILES['vtt_file']['tmp_name'], $subtitle_path);
+            safe_subtitle_upload($_FILES['vtt_file'], $subtitle_path);
             $data['src']            = base_url().$subtitle_path;                               
         }else if(isset($vtt_url) && $vtt_url !=''){
             $data['src']            = $vtt_url;
@@ -1354,7 +1354,7 @@ class Admin extends Admin_Core_Controller {
                 $extention                  = '.'.$this->common_model->get_extension($_FILES['poster']['name']);
                 $file_name                  = $data['slug'].$extention;
                 $file_path                  = 'uploads/tv_image/sm/'.$file_name;                
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], $file_path);
+                safe_image_upload($_FILES['thumbnail'], $file_path);
                 $data_update['thumbnail']   = $file_name;
                 $this->db->where('live_tv_id', $insert_id);
                 $this->db->update('live_tv', $data_update);
@@ -1364,7 +1364,7 @@ class Admin extends Admin_Core_Controller {
                 $extention                  = '.'.$this->common_model->get_extension($_FILES['poster']['name']);
                 $file_name                  = $data['slug'].$extention;
                 $file_path                  = 'uploads/tv_image/'.$file_name;                
-                move_uploaded_file($_FILES['poster']['tmp_name'], $file_path);
+                safe_image_upload($_FILES['poster'], $file_path);
                 $data_update['poster']      = $file_name;
                 $this->db->where('live_tv_id', $insert_id);
                 $this->db->update('live_tv', $data_update);
@@ -1424,7 +1424,7 @@ class Admin extends Admin_Core_Controller {
                 $extention                  = '.'.$this->common_model->get_extension($_FILES['poster']['name']);
                 $file_name                  = $data['slug'].$extention;
                 $file_path                  = 'uploads/tv_image/sm/'.$file_name;                
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], $file_path);
+                safe_image_upload($_FILES['thumbnail'], $file_path);
                 $data_update['thumbnail']   = $file_name;
                 $this->db->where('live_tv_id', $param2);
                 $this->db->update('live_tv', $data_update);
@@ -1434,7 +1434,7 @@ class Admin extends Admin_Core_Controller {
                 $extention                  = '.'.$this->common_model->get_extension($_FILES['poster']['name']);
                 $file_name                  = $data['slug'].$extention;
                 $file_path                  = 'uploads/tv_image/'.$file_name;                
-                move_uploaded_file($_FILES['poster']['tmp_name'], $file_path);
+                safe_image_upload($_FILES['poster'], $file_path);
                 $data_update['poster']      = $file_name;
                 $this->db->where('live_tv_id', $param2);
                 $this->db->update('live_tv', $data_update);
@@ -1843,7 +1843,7 @@ class Admin extends Admin_Core_Controller {
             }
             $data['slug']               = $slug;
             if(isset($_FILES['thumbnail']) && $_FILES['thumbnail']['name']!=''){
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], 'uploads/post_thumb/'.$slug.'.jpg');
+                safe_image_upload($_FILES['thumbnail'], 'uploads/post_thumb/'.$slug.'.jpg');
                 $data['image_link']     = base_url().'uploads/post_thumb/'.$slug.'.jpg';
                 $source                 = 'uploads/post_thumb/'.$slug.'.jpg';
                 $destination            = 'uploads/post_thumb/small/'.$slug.'.jpg';
@@ -1876,7 +1876,7 @@ class Admin extends Admin_Core_Controller {
             }
             $data['slug']            = $slug;
             if(isset($_FILES['thumbnail']) && $_FILES['thumbnail']['name']!=''){
-                move_uploaded_file($_FILES['thumbnail']['tmp_name'], 'uploads/post_thumb/'.$slug.'.jpg');
+                safe_image_upload($_FILES['thumbnail'], 'uploads/post_thumb/'.$slug.'.jpg');
                 $data['image_link']     = base_url().'uploads/post_thumb/'.$slug.'.jpg';
                 $source='uploads/post_thumb/'.$slug.'.jpg';
                 $destination='uploads/post_thumb/small/'.$slug.'.jpg';
@@ -2051,7 +2051,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->insert('star', $data);
                 $insert_id = $this->db->insert_id();
                 if(isset($_FILES['photo']) && $_FILES['photo']['name']!=''){
-                    move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/star_image/'.$insert_id.'.jpg');
+                    safe_image_upload($_FILES['photo'], 'uploads/star_image/'.$insert_id.'.jpg');
                 }
             }
             $this->session->set_flashdata('success', trans('add_success'));
@@ -2071,7 +2071,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->where('star_id', $param2);
                 $this->db->update('star', $data);
                 if(isset($_FILES['photo']) && $_FILES['photo']['name']!=''){
-                    move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/star_image/'.$param2.'.jpg');
+                    safe_image_upload($_FILES['photo'], 'uploads/star_image/'.$param2.'.jpg');
                 }
                 $this->session->set_flashdata('success', trans('update_success'));
                 redirect($this->agent->referrer());
@@ -2825,7 +2825,7 @@ class Admin extends Admin_Core_Controller {
              $this->db->update('config' , $data);
 
             if(!empty($_FILES['player_watermark_logo']) && $_FILES['player_watermark_logo']['name']!=''){
-                move_uploaded_file($_FILES['player_watermark_logo']['tmp_name'], 'uploads/watermark_logo.'.$this->common_model->get_extension($_FILES['player_watermark_logo']['name']));
+                safe_image_upload($_FILES['player_watermark_logo'], 'uploads/watermark_logo.'.$this->common_model->get_extension($_FILES['player_watermark_logo']['name']));
                 $data['value'] = 'uploads/watermark_logo.'.$this->common_model->get_extension($_FILES['player_watermark_logo']['name']);
                 $this->db->where('title' , 'player_watermark_logo');
                 $this->db->update('config' , $data);
@@ -3547,7 +3547,7 @@ class Admin extends Admin_Core_Controller {
                 if ($ads_type=='image') {
                     //$data['ads_image_url']         = base_url().'uploads/no_image.jpg';
                     if(isset($_FILES['ads_image']) && $_FILES['ads_image']['name']!=''){
-                        move_uploaded_file($_FILES['ads_image']['tmp_name'], 'uploads/ads/'.$param2.'.jpg');
+                        safe_image_upload($_FILES['ads_image'], 'uploads/ads/'.$param2.'.jpg');
                         $data['ads_image_url']     = base_url().'uploads/ads/'.$param2.'.jpg';
                     }
                     if($this->input->post('ads_image_url')!=''){                
@@ -3697,7 +3697,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('user_id', $user_id);
             $this->db->update('user', $data);
             $this->common_model->clear_cache();
-            move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/user_image/' .$user_id.'.jpg');
+            safe_image_upload($_FILES['photo'], 'uploads/user_image/' .$user_id.'.jpg');
             $this->common_model->clear_cache();
             $this->session->set_flashdata('success', trans('profile_info_updated'));
             redirect($this->agent->referrer());

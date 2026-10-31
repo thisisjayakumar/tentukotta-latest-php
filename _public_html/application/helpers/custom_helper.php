@@ -72,6 +72,119 @@ if ( ! function_exists('e')):
 	}
 endif;
 
+/**
+ * Validate and store an uploaded image safely.
+ *
+ * - rejects non-uploads, oversize files and non-image content (getimagesize)
+ * - only allows jpg/jpeg/png/webp/gif destination extensions
+ * - re-encodes through GD when available, which strips embedded payloads
+ *
+ * @param array  $file        One entry from $_FILES
+ * @param string $destination Absolute path, or path relative to FCPATH
+ * @param int    $maxBytes    Default 5 MB
+ */
+if ( ! function_exists('safe_image_upload')):
+	function safe_image_upload(array $file, string $destination, int $maxBytes = 5242880): bool
+	{
+		if (!isset($file['tmp_name'], $file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+			return false;
+		}
+		if (!is_uploaded_file($file['tmp_name'])) {
+			return false;
+		}
+		if (filesize($file['tmp_name']) > $maxBytes) {
+			return false;
+		}
+
+		$info = @getimagesize($file['tmp_name']);
+		if ($info === false || empty($info['mime'])) {
+			return false;
+		}
+
+		$allowed = array(
+			'image/jpeg' => array('jpg', 'jpeg'),
+			'image/png'  => array('png'),
+			'image/webp' => array('webp'),
+			'image/gif'  => array('gif'),
+		);
+		if (!isset($allowed[$info['mime']])) {
+			return false;
+		}
+
+		$base = defined('FCPATH') ? FCPATH : '';
+		$dest = (str_starts_with($destination, '/') || preg_match('#^[A-Za-z]:[\\\\/]#', $destination))
+			? $destination
+			: $base . ltrim($destination, '/');
+		$ext = strtolower(pathinfo($dest, PATHINFO_EXTENSION));
+		if (!in_array($ext, array('jpg', 'jpeg', 'png', 'webp', 'gif'), true)) {
+			return false;
+		}
+
+		$dir = dirname($dest);
+		if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+			return false;
+		}
+
+		$gd = function_exists('imagecreatefromstring');
+		if ($gd) {
+			$image = @imagecreatefromstring(file_get_contents($file['tmp_name']));
+			if ($image === false) {
+				return false;
+			}
+			$ok = false;
+			if ($ext === 'png') {
+				$ok = function_exists('imagepng') && imagepng($image, $dest, 6);
+			} elseif ($ext === 'webp') {
+				$ok = function_exists('imagewebp') && imagewebp($image, $dest, 90);
+			} elseif ($ext === 'gif') {
+				$ok = function_exists('imagegif') && imagegif($image, $dest);
+			} else {
+				$ok = function_exists('imagejpeg') && imagejpeg($image, $dest, 90);
+			}
+			imagedestroy($image);
+			if ($ok) {
+				return true;
+			}
+			// Fall through to the validated copy if the GD encoder is missing.
+		}
+
+		return move_uploaded_file($file['tmp_name'], $dest);
+	}
+endif;
+
+/**
+ * Store a WebVTT subtitle after validating type and size.
+ * The uploads directory denies script execution as a second layer.
+ */
+if ( ! function_exists('safe_subtitle_upload')):
+	function safe_subtitle_upload(array $file, string $destination, int $maxBytes = 2097152): bool
+	{
+		if (!isset($file['tmp_name'], $file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+			return false;
+		}
+		if (!is_uploaded_file($file['tmp_name']) || filesize($file['tmp_name']) > $maxBytes) {
+			return false;
+		}
+		if (strtolower(pathinfo($destination, PATHINFO_EXTENSION)) !== 'vtt') {
+			return false;
+		}
+		$head = (string) file_get_contents($file['tmp_name'], false, null, 0, 4096);
+		if (stripos($head, '<?php') !== false || stripos($head, '<script') !== false) {
+			return false;
+		}
+
+		$base = defined('FCPATH') ? FCPATH : '';
+		$dest = (str_starts_with($destination, '/') || preg_match('#^[A-Za-z]:[\\\\/]#', $destination))
+			? $destination
+			: $base . ltrim($destination, '/');
+		$dir = dirname($dest);
+		if (!is_dir($dir) && !@mkdir($dir, 0755, true)) {
+			return false;
+		}
+		return move_uploaded_file($file['tmp_name'], $dest);
+	}
+endif;
+
 // CSRF hidden input for hand-written <form> tags (form_open() adds its own).
 if ( ! function_exists('csrf_input')):
 	function csrf_input()

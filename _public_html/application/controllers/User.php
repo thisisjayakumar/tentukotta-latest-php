@@ -421,7 +421,7 @@ class User extends Home_Core_Controller{
                 $data['dob']            = date("Y-m-d",strtotime($this->input->post('dob')));             
                 $this->db->where('user_id', $user_id);
                 $this->db->update('user', $data);
-                move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/user_image/' .$user_id.'.jpg');            
+                safe_image_upload($_FILES['photo'], 'uploads/user_image/' .$user_id.'.jpg');            
                 $this->session->set_flashdata('success', 'Profile information updated.');
                 redirect(base_url() . 'user/update_profile/', 'refresh');
             endif;
@@ -693,7 +693,7 @@ class User extends Home_Core_Controller{
             $data['gender'] = $this->input->post('gender');             
             $this->db->where('user_id', $user_id);
             $this->db->update('user', $data);
-            move_uploaded_file($_FILES['photo']['tmp_name'], 'uploads/user_image/' .$user_id.'.jpg');            
+            safe_image_upload($_FILES['photo'], 'uploads/user_image/' .$user_id.'.jpg');            
             $this->session->set_flashdata('success', 'Profile information updated.');
             redirect(base_url() . 'user/update_profile/', 'refresh');
         }
