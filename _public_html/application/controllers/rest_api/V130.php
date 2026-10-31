@@ -988,12 +988,15 @@ class V130 extends API_Core_Controller{
 
     // get check_validated_subscription_plan
     public function store_payment_info_post() {
-        // Disabled until server-side gateway verification is implemented
-        // (security-refactoring Task 7). Until then this endpoint must not
-        // grant subscriptions from a client-supplied payment payload.
+        // Server-side gateway verification now exists
+        // (Subscription_model::verify_payment()), but this endpoint trusts a
+        // caller-supplied user_id and has no per-user auth token. Granting a
+        // paid subscription on that basis would let any API-key holder buy for
+        // (or impersonate) another account. Keep it closed until the mobile app
+        // sends an authenticated user token.
         $this->response([
             'status'  => 'error',
-            'message' => 'Endpoint disabled pending payment verification',
+            'message' => 'Endpoint requires an authenticated user token',
         ], 410);
     }
 

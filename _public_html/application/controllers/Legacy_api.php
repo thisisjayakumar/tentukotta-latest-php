@@ -27,6 +27,7 @@ class Legacy_api extends CI_Controller{
         $this->load->model('common_model');
         $this->load->model('legacy_api_model');
         $this->load->model('api_subscription_model');
+        $this->load->model('subscription_model');
 		$this->load->database();
 	
    		/*cache controling*/
@@ -1642,20 +1643,59 @@ class Legacy_api extends CI_Controller{
             // verify api secret key
             $verify_apps_api_secret_key =   $this->legacy_api_model->check_mobile_apps_api_secret_key($api_secret_key);
             if($verify_apps_api_secret_key):
-                $data['plan_id']                    =   $this->input->post('plan_id');
-                $data['user_id']                    =   $this->input->post('user_id');
-                $data['paid_amount']                =   (int)$this->input->post('paid_amount')/100;
-                $data['payment_timestamp']          =   strtotime(date("Y-m-d H:i:s"));
-                $data['timestamp_from']             =   strtotime(date("Y-m-d H:i:s"));
-                $day                                =   $this->db->get_where('plan', array('plan_id'=>$data['plan_id']))->row()->day;
-                $day                                =   '+'.$day.' days';
-                $data['timestamp_to']               =   strtotime($day, $data['timestamp_from']);
-                $data['payment_method']             =   $this->input->post('payment_method');
-                $data['payment_info']               =   $this->input->post('payment_info');
-                $data['status']                     =   1;
-                $this->db->insert('subscription' , $data);
-                $response['status']         = 'success';
-                $response['message']        = 'Stored successfully.';
+                $plan_id                        =   (int) $this->input->post('plan_id');
+                $user_id                        =   (int) $this->input->post('user_id');
+                $plan                           =   $this->db->get_where('plan', array('plan_id' => $plan_id))->row();
+
+                if (!$plan || $user_id <= 0):
+                    $response['status']         = 'error';
+                    $response['message']        = 'Invalid plan or user.';
+                else:
+                    $payment_method             =   strtolower(trim((string) $this->input->post('payment_method')));
+                    $payment_info               =   $this->input->post('payment_info');
+                    $payload                    =   array(
+                        'payment_info'        => $payment_info,
+                        'razorpay_order_id'   => $this->input->post('razorpay_order_id'),
+                        'razorpay_payment_id' => $this->input->post('razorpay_payment_id'),
+                        'razorpay_signature'  => $this->input->post('razorpay_signature'),
+                        'payment_status'      => $this->input->post('payment_status'),
+                        'mc_gross'            => $this->input->post('mc_gross'),
+                        'mc_currency'         => $this->input->post('mc_currency'),
+                        'receiver_email'      => $this->input->post('receiver_email'),
+                        'txn_id'              => $this->input->post('txn_id'),
+                    );
+
+                    $transaction_id = $this->subscription_model->payment_transaction_id($payment_method, $payload);
+                    $duplicate      = $transaction_id !== ''
+                        && $this->db->get_where('subscription', array('transaction_id' => $transaction_id))->num_rows() > 0;
+
+                    if (!$this->subscription_model->verify_payment($payment_method, $payload, (float) $plan->price)):
+                        log_message('error', 'legacy store_payment_info: verification failed for plan '.$plan_id);
+                        $response['status']     = 'error';
+                        $response['message']    = 'Payment verification failed.';
+                    elseif ($duplicate):
+                        log_message('error', 'legacy store_payment_info: duplicate transaction '.$transaction_id);
+                        $response['status']     = 'error';
+                        $response['message']    = 'Payment already processed.';
+                    else:
+                        $data['plan_id']            =   $plan_id;
+                        $data['user_id']            =   $user_id;
+                        $data['price_amount']       =   $plan->price;
+                        $data['paid_amount']        =   $plan->price;
+                        $data['currency']           =   $this->db->get_where('config', array('title' => 'currency'))->row()->value;
+                        $data['payment_timestamp']  =   time();
+                        $data['timestamp_from']     =   time();
+                        $day                        =   '+'.$plan->day.' days';
+                        $data['timestamp_to']       =   strtotime($day, $data['timestamp_from']);
+                        $data['payment_method']     =   $payment_method;
+                        $data['payment_info']       =   $payment_info;
+                        $data['transaction_id']     =   $transaction_id !== '' ? $transaction_id : NULL;
+                        $data['status']             =   1;
+                        $this->db->insert('subscription' , $data);
+                        $response['status']         = 'success';
+                        $response['message']        = 'Stored successfully.';
+                    endif;
+                endif;
             else:
                 $response['status']     = 'error';
                 $response['message']    = 'API secret key is invalid.';

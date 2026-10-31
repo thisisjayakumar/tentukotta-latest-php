@@ -141,10 +141,44 @@ check('payment config omits gateway secrets', function () {
     }
     return true;
 });
-check('store_payment_info_post disabled pending verification', fn() => has(
-    'application/controllers/rest_api/V130.php', 'Endpoint disabled pending payment verification'));
+check('store_payment_info_post stays closed pending user auth', function () {
+    foreach (['V130.php', 'V100.php'] as $f) {
+        if (!has('application/controllers/rest_api/' . $f, 'Endpoint requires an authenticated user token')) {
+            return false;
+        }
+    }
+    return true;
+});
 check('tv user lookup redacts private fields', fn() => has(
     'application/controllers/rest_api/V130.php', 'public_user_fields'));
+
+// -----------------------------------------------------------------------------
+// TASK 7: server-side payment verification
+// -----------------------------------------------------------------------------
+check('save_payment calls verify_payment', function () {
+    $s = src('application/controllers/Subscription.php');
+    return str_contains($s, 'verify_payment(')
+        && !preg_match('/\$data\[.paid_amount.\]\s*=\s*\$_POST/', $s);
+});
+check('Subscription_model implements per-gateway verification', function () {
+    $s = src('application/models/Subscription_model.php');
+    return str_contains($s, 'function verify_payment')
+        && str_contains($s, 'verifyPaymentSignature')
+        && str_contains($s, 'amount_received')
+        && str_contains($s, 'validate_ipn')
+        && str_contains($s, 'mc_gross');
+});
+check('save_payment derives the price from the plan table', fn() => has(
+    'application/controllers/Subscription.php', '$plan->price'));
+check('save_payment returns 402 on verification failure', fn() => has(
+    'application/controllers/Subscription.php', 'set_status_header(402)'));
+check('payments reject replayed transactions', fn() => has(
+    'application/controllers/Subscription.php', 'Payment already processed'));
+check('legacy payment endpoint ignores client paid_amount', function () {
+    $s = src('application/controllers/Legacy_api.php');
+    return str_contains($s, 'verify_payment(')
+        && !str_contains($s, "input->post('paid_amount')");
+});
 
 // -----------------------------------------------------------------------------
 // TASK 6: password hashing migration (Argon2id + transparent upgrade)

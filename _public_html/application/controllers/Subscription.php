@@ -575,47 +575,47 @@ class Subscription extends Home_Core_Controller {
         
         else if ($action == 'ipn')
         {
-            $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-            $txt = "John Doe\n";
-            fwrite($myfile, $txt);
-            $txt = "Jane Doe\n";
-            fwrite($myfile, $txt);
-            fclose($myfile);
+            $custom = isset($_POST['custom']) ? $_POST['custom'] : '';
+            parse_str($custom, $_MYVAR);
 
-            if ($this->paypal->validate_ipn() == true) 
-            {
+            $plan_id = isset($_MYVAR['plan_id']) ? (int) $_MYVAR['plan_id'] : 0;
+            $plan    = $this->db->get_where('plan', array('plan_id' => $plan_id))->row();
+
+            // verify_payment() posts the raw IPN back to PayPal and checks
+            // payment_status, mc_gross, currency and receiver before we insert.
+            $payload                 = $_POST;
+            $payload['payment_info'] = $_POST;
+
+            if (!$plan || !$this->subscription_model->verify_payment('paypal', $payload, (float) $plan->price)):
+                log_message('error', 'paypal IPN rejected for plan '.$plan_id);
+            else:
                 $currency_code              =   $this->db->get_where('config',array('title'=>'currency'))->row()->value;
-                $response                   = '';
-                $transaction_id             = '';
-                $payment_info               = array();
-                $i                          = 0;
+                $transaction_id             =   isset($_POST['txn_id']) ? (string) $_POST['txn_id'] : '';
+                $payment_info               =   array();
+                $i                          =   0;
                 foreach ($_POST as $key => $value) {
                     $value = urlencode(stripslashes($value));
-                    $response .= "\n$key=$value";
                     if($key =="txn_id"):
                         $transaction_id = $value;
                     endif;
                     $payment_info[$i][$key] = $value;
                 }
-                $myfile = fopen("newfile.txt", "w") or die("Unable to open file!");
-                $txt = "John Doe\n";
-                fwrite($myfile, $txt);
-                $txt = "Jane Doe\n";
-                fwrite($myfile, $txt);
-                fclose($myfile);
 
-                $custom =   $_POST['custom'];
-                parse_str($custom,$_MYVAR);
-                $data['plan_id']            =   $_MYVAR['plan_id'];
-                $data['user_id']            =   $_MYVAR['user_id'];
+                if ($transaction_id !== ''
+                    && $this->db->get_where('subscription', array('transaction_id' => $transaction_id))->num_rows() > 0):
+                    log_message('error', 'paypal IPN ignored: duplicate transaction '.$transaction_id);
+                    redirect(base_url('my-account/subscription') , 'refresh');
+                    return;
+                endif;
 
-                $price                      = $this->db->get_where('plan', array('plan_id'=>$_MYVAR['plan_id']))->row()->price;
-                
+                $data['plan_id']            =   $plan_id;
+                $data['user_id']            =   isset($_MYVAR['user_id']) ? (int) $_MYVAR['user_id'] : 0;
+                $price                      = $plan->price;
+
                 $data['paid_amount']        =   $price;
                 $data['price_amount']       =   $price;
                 $data['currency']           =   $currency_code;
-                $day                        =   $this->db->get_where('plan', array('plan_id'=>$_MYVAR['plan_id']))->row()->day;
-                $day                        =   '+'.$day.' days';
+                $day                        =   '+'.$plan->day.' days';
 
                 $data['payment_timestamp']  =   time();
                 $data['timestamp_from']     =   time();
@@ -623,9 +623,9 @@ class Subscription extends Home_Core_Controller {
                 $data['payment_method']     =   'paypal';
                 $data['payment_info']       =   json_encode($payment_info,JSON_FORCE_OBJECT);
                 $data['transaction_id']     =   $transaction_id;
-                $data['status']             =   1;                
+                $data['status']             =   1;
                 $this->db->insert('subscription' , $data);
-            }
+            endif;
         }
         
         else if ($action == 'success')
@@ -644,32 +644,82 @@ class Subscription extends Home_Core_Controller {
         $response['status']         = "error";
         $response['message']        = "Something went wrong.Please contact with system admin";
 
-        $plan_id                    = $_POST['plan_id'];      
-        $payment_method             = $_POST['payment_method'];      
-        $payment_info               = $_POST['payment_info'];
+        $plan_id                    = (int) $this->input->post('plan_id');
+        $payment_method             = strtolower(trim((string) $this->input->post('payment_method')));
+        $payment_info               = $this->input->post('payment_info');
 
-        if($this->session->userdata('user_id') !='' && $this->session->userdata('user_id') !=NULL):
-            $response['status']         = "error";
-            $response['message']        = "Plan ID not found.";
-            if($this->db->get_where('plan', array('plan_id'=>$plan_id))->num_rows() > 0):
-                $data['plan_id']                    =   $plan_id;
-                $data['user_id']                    =   $this->session->userdata('user_id');
-                $data['paid_amount']        =   $this->db->get_where('plan', array('plan_id'=>$plan_id))->row()->price;
-                $data['payment_timestamp']          =   time();
-                $data['timestamp_from']             =   time();
-                $day                                =   $this->db->get_where('plan', array('plan_id'=>$plan_id))->row()->day;
-                $day                                =   '+'.$day.' days';
-                $data['timestamp_to']               =   strtotime($day, $data['timestamp_from']);
-                $data['payment_method']             =   $payment_method;
-                $data['payment_info']               =   $payment_info;
-                $data['status']                     =   1;
-                $this->db->insert('subscription' , $data);
-
-                $response['status']         = "success";
-                $response['message']        = "Payment Completed.";
-                $this->session->set_flashdata('success', 'Payment Completed.');
-            endif;             
+        $user_id                    = $this->session->userdata('user_id');
+        if(empty($user_id)):
+            $this->output->set_status_header(401);
+            $response['message'] = "Please log in to continue.";
+            echo json_encode($response);
+            return;
         endif;
+
+        $plan = $this->db->get_where('plan', array('plan_id' => $plan_id))->row();
+        if(!$plan):
+            $response['message'] = "Plan ID not found.";
+            echo json_encode($response);
+            return;
+        endif;
+
+        // The price is authoritative only when it comes from the plan table.
+        $price = (float) $plan->price;
+
+        $payload = array(
+            'payment_info'        => $payment_info,
+            'razorpay_order_id'   => $this->input->post('razorpay_order_id')
+                                        ?: $this->session->userdata('razorpay_order_id'),
+            'razorpay_payment_id' => $this->input->post('razorpay_payment_id'),
+            'razorpay_signature'  => $this->input->post('razorpay_signature'),
+            'payment_status'      => $this->input->post('payment_status'),
+            'mc_gross'            => $this->input->post('mc_gross'),
+            'mc_currency'         => $this->input->post('mc_currency'),
+            'receiver_email'      => $this->input->post('receiver_email'),
+            'txn_id'              => $this->input->post('txn_id'),
+        );
+
+        if (!$this->subscription_model->verify_payment($payment_method, $payload, $price)):
+            log_message('error', 'save_payment: verification failed for plan '.$plan_id.' via '.$payment_method);
+            $this->output->set_status_header(402);
+            $response['message'] = "Payment verification failed";
+            echo json_encode($response);
+            return;
+        endif;
+
+        // Reject replay of an already-consumed gateway transaction.
+        $transaction_id = $this->subscription_model->payment_transaction_id($payment_method, $payload);
+        if ($transaction_id !== ''
+            && $this->db->get_where('subscription', array('transaction_id' => $transaction_id))->num_rows() > 0):
+            log_message('error', 'save_payment: duplicate transaction '.$transaction_id);
+            $this->output->set_status_header(409);
+            $response['message'] = "Payment already processed";
+            echo json_encode($response);
+            return;
+        endif;
+
+        $data['plan_id']                    =   $plan_id;
+        $data['user_id']                    =   $user_id;
+        $data['price_amount']               =   $price;
+        $data['paid_amount']                =   $price;
+        $data['currency']                   =   $this->db->get_where('config', array('title' => 'currency'))->row()->value;
+        $data['payment_timestamp']          =   time();
+        $data['timestamp_from']             =   time();
+        $day                                =   '+'.$plan->day.' days';
+        $data['timestamp_to']               =   strtotime($day, $data['timestamp_from']);
+        $data['payment_method']             =   $payment_method;
+        $data['payment_info']               =   $payment_info;
+        $data['transaction_id']             =   $transaction_id !== '' ? $transaction_id : NULL;
+        $data['status']                     =   1;
+
+        if ($this->db->insert('subscription' , $data)):
+            $response['status']         = "success";
+            $response['message']        = "Payment Completed.";
+            $this->session->set_flashdata('success', 'Payment Completed.');
+        else:
+            $response['message']        = "Could not record the subscription.";
+        endif;
+
         echo json_encode($response);
     }
 

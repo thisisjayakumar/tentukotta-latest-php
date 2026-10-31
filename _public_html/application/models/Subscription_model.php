@@ -264,7 +264,243 @@ class Subscription_model extends CI_Model {
         return $query->num_rows(); 
     }
 
-    
+    // -------------------------------------------------------------------------
+    // Payment verification
+    // -------------------------------------------------------------------------
+
+    /**
+     * Verify a payment with the gateway *before* granting a subscription.
+     *
+     * The caller must pass the authoritative plan price from the `plan` table,
+     * never a value supplied by the client.
+     *
+     * @param string $method          stripe | paypal | razorpay
+     * @param array  $payload         Request values (payment_info, razorpay_*, IPN fields)
+     * @param float  $expectedAmount  Plan price in the site currency
+     * @return bool
+     */
+    function verify_payment($method, $payload, $expectedAmount){
+        $method         = strtolower(trim((string) $method));
+        $expectedAmount = (float) $expectedAmount;
+
+        if ($expectedAmount <= 0):
+            log_message('error', 'verify_payment: refusing non-positive expected amount');
+            return FALSE;
+        endif;
+
+        switch ($method):
+            case 'stripe':
+                return $this->_verify_stripe_payment($payload, $expectedAmount);
+            case 'paypal':
+                return $this->_verify_paypal_payment($payload, $expectedAmount);
+            case 'razorpay':
+                return $this->_verify_razorpay_payment($payload, $expectedAmount);
+            default:
+                log_message('error', 'verify_payment: unsupported payment method "'.$method.'"');
+                return FALSE;
+        endswitch;
+    }
+
+    /**
+     * Gateway transaction id, used by callers to reject replayed payments.
+     *
+     * @return string Empty string when the gateway did not expose one.
+     */
+    function payment_transaction_id($method, $payload){
+        $method = strtolower(trim((string) $method));
+
+        if ($method === 'razorpay'):
+            return (string) ($payload['razorpay_payment_id'] ?? '');
+        endif;
+
+        if ($method === 'paypal'):
+            return (string) ($payload['txn_id'] ?? ($_POST['txn_id'] ?? ''));
+        endif;
+
+        if ($method === 'stripe'):
+            $info = $payload['payment_info'] ?? '';
+            if (is_string($info) && $info !== '' && $info[0] === '{'):
+                $decoded = json_decode($info, TRUE);
+                if (is_array($decoded) && !empty($decoded['id'])):
+                    return (string) $decoded['id'];
+                endif;
+            endif;
+            if (is_array($info) && !empty($info['id'])):
+                return (string) $info['id'];
+            endif;
+            return is_string($info) ? $info : '';
+        endif;
+
+        return '';
+    }
+
+    /**
+     * Stripe: retrieve the PaymentIntent and require a successful charge for
+     * exactly the expected amount and currency.
+     */
+    private function _verify_stripe_payment($payload, $expectedAmount){
+        $info = $payload['payment_info'] ?? '';
+
+        if (is_string($info) && $info !== '' && $info[0] === '{'):
+            $decoded = json_decode($info, TRUE);
+            if (is_array($decoded) && !empty($decoded['id'])):
+                $info = $decoded['id'];
+            endif;
+        endif;
+
+        $intent_id = is_array($info) ? ($info['id'] ?? '') : $info;
+        $intent_id = is_string($intent_id) ? trim($intent_id) : '';
+
+        if ($intent_id === '' || strpos($intent_id, 'pi_') !== 0):
+            log_message('error', 'verify_payment(stripe): missing or invalid PaymentIntent id');
+            return FALSE;
+        endif;
+
+        $secret = ovoo_config('stripe_secret_key');
+        if ($secret === '' || $secret === NULL):
+            log_message('error', 'verify_payment(stripe): gateway secret not configured');
+            return FALSE;
+        endif;
+
+        require_once(APPPATH . 'libraries/stripe/init.php');
+
+        try {
+            \Stripe\Stripe::setApiKey($secret);
+            $intent = \Stripe\PaymentIntent::retrieve($intent_id);
+        } catch (\Exception $e) {
+            log_message('error', 'verify_payment(stripe): retrieve failed: '.$e->getMessage());
+            return FALSE;
+        }
+
+        if (!isset($intent->status) || $intent->status !== 'succeeded'):
+            log_message('error', 'verify_payment(stripe): status is not succeeded');
+            return FALSE;
+        endif;
+
+        $expected_cents = (int) round($expectedAmount * 100);
+        if ((int) $intent->amount_received !== $expected_cents):
+            log_message('error', 'verify_payment(stripe): amount mismatch (got '.(int)$intent->amount_received.', expected '.$expected_cents.')');
+            return FALSE;
+        endif;
+
+        $currency = $this->db->get_where('config', array('title' => 'currency'))->row()->value;
+        if (!empty($currency) && !empty($intent->currency)
+            && strcasecmp((string) $intent->currency, (string) $currency) !== 0):
+            log_message('error', 'verify_payment(stripe): currency mismatch');
+            return FALSE;
+        endif;
+
+        return TRUE;
+    }
+
+    /**
+     * PayPal: require a PayPal-verified IPN, payment_status=Completed, a
+     * matching gross amount, currency and (when configured) receiver email.
+     */
+    private function _verify_paypal_payment($payload, $expectedAmount){
+        $CI =& get_instance();
+        if (!isset($CI->paypal)):
+            $CI->load->library('paypal');
+        endif;
+
+        if ($CI->paypal->validate_ipn() !== TRUE):
+            log_message('error', 'verify_payment(paypal): IPN validation failed');
+            return FALSE;
+        endif;
+
+        $status = (string) ($payload['payment_status'] ?? ($_POST['payment_status'] ?? ''));
+        if (strcasecmp($status, 'Completed') !== 0):
+            log_message('error', 'verify_payment(paypal): payment_status is not Completed');
+            return FALSE;
+        endif;
+
+        $gross = $payload['mc_gross'] ?? ($_POST['mc_gross'] ?? NULL);
+        if ($gross === NULL || abs((float) $gross - $expectedAmount) > 0.01):
+            log_message('error', 'verify_payment(paypal): amount mismatch');
+            return FALSE;
+        endif;
+
+        $currency         = $payload['mc_currency'] ?? ($_POST['mc_currency'] ?? NULL);
+        $site_currency    = $this->db->get_where('config', array('title' => 'currency'))->row()->value;
+        if ($currency !== NULL && !empty($site_currency)
+            && strcasecmp((string) $currency, (string) $site_currency) !== 0):
+            log_message('error', 'verify_payment(paypal): currency mismatch');
+            return FALSE;
+        endif;
+
+        $receiver         = (string) ($payload['receiver_email'] ?? ($_POST['receiver_email'] ?? ''));
+        $expected_receiver = ovoo_config('paypal_email');
+        if ($receiver !== '' && !empty($expected_receiver)
+            && strcasecmp($receiver, (string) $expected_receiver) !== 0):
+            log_message('error', 'verify_payment(paypal): receiver mismatch');
+            return FALSE;
+        endif;
+
+        return TRUE;
+    }
+
+    /**
+     * Razorpay: verify the signature, then confirm the captured amount matches
+     * the plan price converted with the configured INR exchange rate.
+     */
+    private function _verify_razorpay_payment($payload, $expectedAmount){
+        $order_id   = trim((string) ($payload['razorpay_order_id'] ?? ''));
+        $payment_id = trim((string) ($payload['razorpay_payment_id'] ?? ''));
+        $signature  = trim((string) ($payload['razorpay_signature'] ?? ''));
+
+        if ($order_id === '' || $payment_id === '' || $signature === ''
+            || strpos($payment_id, 'pay_') !== 0):
+            log_message('error', 'verify_payment(razorpay): missing payment fields');
+            return FALSE;
+        endif;
+
+        $key    = ovoo_config('razorpay_key_id');
+        $secret = ovoo_config('razorpay_key_secret');
+        if (empty($key) || empty($secret)):
+            log_message('error', 'verify_payment(razorpay): gateway keys not configured');
+            return FALSE;
+        endif;
+
+        require_once(APPPATH . 'third_party/razorpay/Razorpay.php');
+
+        try {
+            $api = new \Razorpay\Api\Api($key, $secret);
+            $api->utility->verifyPaymentSignature(array(
+                'razorpay_order_id'   => $order_id,
+                'razorpay_payment_id' => $payment_id,
+                'razorpay_signature'  => $signature,
+            ));
+            $payment = $api->payment->fetch($payment_id);
+        } catch (\Exception $e) {
+            log_message('error', 'verify_payment(razorpay): '.$e->getMessage());
+            return FALSE;
+        }
+
+        if (!isset($payment->order_id) || (string) $payment->order_id !== $order_id):
+            log_message('error', 'verify_payment(razorpay): order mismatch');
+            return FALSE;
+        endif;
+
+        $status = (string) ($payment->status ?? '');
+        if (!in_array($status, array('captured', 'authorized'), TRUE)):
+            log_message('error', 'verify_payment(razorpay): payment not captured');
+            return FALSE;
+        endif;
+
+        $rate = (float) ovoo_config('razorpay_inr_exchange_rate');
+        if ($rate <= 0):
+            $rate = 1;
+        endif;
+
+        $expected_paise = (int) round($expectedAmount * $rate * 100);
+        if ((int) ($payment->amount ?? 0) !== $expected_paise):
+            log_message('error', 'verify_payment(razorpay): amount mismatch');
+            return FALSE;
+        endif;
+
+        return TRUE;
+    }
+
 }
 
 

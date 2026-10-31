@@ -961,21 +961,16 @@ class V100 extends API_Core_Controller{
 
     // get check_validated_subscription_plan
     public function store_payment_info_post() {
-        $data['plan_id']                    =   $this->input->post('plan_id');
-        $data['user_id']                    =   $this->input->post('user_id');
-        $data['paid_amount']                =   (int)$this->input->post('paid_amount')/100;
-        $data['payment_timestamp']          =   strtotime(date("Y-m-d H:i:s"));
-        $data['timestamp_from']             =   strtotime(date("Y-m-d H:i:s"));
-        $day                                =   $this->db->get_where('plan', array('plan_id'=>$data['plan_id']))->row()->day;
-        $day                                =   '+'.$day.' days';
-        $data['timestamp_to']               =   strtotime($day, $data['timestamp_from']);
-        $data['payment_method']             =   $this->input->post('payment_method');
-        $data['payment_info']               =   $this->input->post('payment_info');
-        $data['status']                     =   1;
-        $this->db->insert('subscription' , $data);
-        $response['status']         = 'success';
-        $response['message']        = 'Stored successfully.';            
-        $this->response($response,200);
+        // Server-side gateway verification now exists
+        // (Subscription_model::verify_payment()), but this endpoint trusts a
+        // caller-supplied user_id and has no per-user auth token. Granting a
+        // paid subscription on that basis would let any API-key holder buy for
+        // (or impersonate) another account. Keep it closed until the mobile app
+        // sends an authenticated user token.
+        $this->response([
+            'status'  => 'error',
+            'message' => 'Endpoint requires an authenticated user token',
+        ], 410);
     }
 
     // get check_validated_subscription_plan
