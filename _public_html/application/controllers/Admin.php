@@ -3734,13 +3734,22 @@ class Admin extends Admin_Core_Controller {
             $response['status']  = 'error';
             $response['message'] = 'Action not allow on demo';
         else:
+            $this->config->load('admin_tables', TRUE);
+            $allowed            = $this->config->item('admin_tables');
+
             $row_id             = $this->input->post('row_id');
             $table_name         = $this->input->post('table_name');
-            if($table_name == 'homepage_sections'):
-                $table_row_id       ='id';
-            else:
-                $table_row_id       =$table_name.'_id';
+
+            if (!is_array($allowed) || !isset($allowed[$table_name])):
+                echo json_encode(array(
+                    'status'  => 'error',
+                    'message' => 'Table not permitted',
+                ));
+                return;
             endif;
+
+            $table_row_id       = $allowed[$table_name]['pk'];
+
             $this->db->where($table_row_id , $row_id);
             $query=$this->db->delete($table_name);
             if($query==true):
@@ -3761,12 +3770,38 @@ class Admin extends Admin_Core_Controller {
             $response['status']  = 'error';
             $response['message'] = 'Action not allow on demo';
         else:
+            $this->config->load('admin_tables', TRUE);
+            $allowed                = $this->config->item('admin_tables');
+
             $table                  = $this->input->post('table');
             $primary_key            = $this->input->post('primary_key');
             $primary_key_value      = $this->input->post('primary_key_value');
             $column                 = $this->input->post('column');
             $value                  = $this->input->post('value');
-            $table_name             = $this->input->post('table_name');
+
+            // Reject any table/column pair that is not explicitly whitelisted.
+            if (!is_array($allowed) || !isset($allowed[$table])):
+                echo json_encode(array(
+                    'status'  => 'error',
+                    'message' => 'Table not permitted',
+                ));
+                return;
+            endif;
+            if ($allowed[$table]['pk'] !== $primary_key):
+                echo json_encode(array(
+                    'status'  => 'error',
+                    'message' => 'Primary key not permitted',
+                ));
+                return;
+            endif;
+            if (!in_array($column, $allowed[$table]['columns'], true)):
+                echo json_encode(array(
+                    'status'  => 'error',
+                    'message' => 'Column not permitted',
+                ));
+                return;
+            endif;
+
             //table exist
             if ($this->db->table_exists($table)):
                 //column exist

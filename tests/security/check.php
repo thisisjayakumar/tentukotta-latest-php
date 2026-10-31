@@ -102,4 +102,17 @@ check('public rating moved out of Admin.php', fn() => !preg_match(
 check('public rating controller exists', fn() => is_file(root() . '/application/controllers/Movie_public.php'));
 check('admin/rating route preserved', fn() => has('application/config/routes.php', "'admin/rating'"));
 
+// -----------------------------------------------------------------------------
+// TASK 4: whitelist admin-mutable tables and columns
+// -----------------------------------------------------------------------------
+check('admin table whitelist config exists', fn() => is_file(root() . '/application/config/admin_tables.php'));
+check('delete_record uses the whitelist', function () {
+    $s = src('application/controllers/Admin.php');
+    return str_contains($s, "config->load('admin_tables'")
+        && str_contains($s, "'Table not permitted'");
+});
+check('update_status rejects non-whitelisted columns', fn() => has('application/controllers/Admin.php', "'Column not permitted'"));
+check('no raw table_names from input reach db->delete', fn() => !preg_match(
+    '/\$this->db->delete\(\s*\$this->input->post/', src('application/controllers/Admin.php')));
+
 exit($fails > 0 ? 1 : 0);
