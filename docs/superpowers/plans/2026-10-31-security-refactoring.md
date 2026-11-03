@@ -153,7 +153,7 @@ expect() { # name expected_code url [extra curl args...]
 }
 expect 'unauth admin delete_record' 403 '/admin/delete_record' -X POST
 expect 'unauth admin update_status' 403 '/admin/update_status' -X POST
-expect 'rest v130 config requires auth' 401 '/rest-api/v130/config_get'
+expect 'rest v130 config requires auth' 401 '/rest-api/v130/config'
 exit "$fail"
 ```
 
@@ -478,7 +478,7 @@ Leave their `use chriskacerguis\RestServer\RestController;` line intact or remov
 - [ ] **Step 4: Verify auth on every endpoint**
 
 ```bash
-for p in config_get slider_get all_package_get user_details_by_user_id_get; do
+for p in config slider all_package user_details_by_user_id; do
   curl -s -o /dev/null -w "$p %{http_code}\n" "$STAGING_URL/rest-api/v130/$p"
 done
 ```

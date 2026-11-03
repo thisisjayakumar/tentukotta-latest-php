@@ -19,6 +19,6 @@ expect() { # name expected_code url [extra curl args...]
 
 expect 'unauth admin delete_record' 403 '/admin/delete_record' -X POST
 expect 'unauth admin update_status' 403 '/admin/update_status' -X POST
-expect 'rest v130 config requires auth' 401 '/rest-api/v130/config_get'
+expect 'rest v130 config requires auth' 401 '/rest-api/v130/config'
 
 exit "$fail"
