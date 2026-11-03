@@ -431,6 +431,24 @@ check('inventory records the Guzzle CVE risk', function () {
         && str_contains($s, 'CodeIgniter');
 });
 // -----------------------------------------------------------------------------
+// FOLLOW-UP: web updater is opt-in and archive-validated
+// -----------------------------------------------------------------------------
+check('web updater is disabled unless opted in', fn() => has(
+    'application/controllers/Updater.php', "env_bool('ALLOW_WEB_UPDATER'"));
+check('web updater no longer requires uploaded php', fn() => preg_match(
+    '/require\s+[^;]*php_update\.php/', src('application/controllers/Updater.php')) !== 1);
+check('web updater validates archives with Safe_zip', fn() => has(
+    'application/controllers/Updater.php', 'safe_zip->extract'));
+check('Safe_zip rejects traversal, absolute paths and symlinks', function () {
+    $s = src('application/libraries/Safe_zip.php');
+    return str_contains($s, "'..'")
+        && str_contains($s, 'absolute path')
+        && str_contains($s, 'symlink');
+});
+check('web updater confines config.json copies to the app root', fn() => has(
+    'application/controllers/Updater.php', '_resolve_target'));
+
+// -----------------------------------------------------------------------------
 // FOLLOW-UP: baseline HTTP security headers and crawler policy
 // -----------------------------------------------------------------------------
 check('baseline security headers are sent', function () {

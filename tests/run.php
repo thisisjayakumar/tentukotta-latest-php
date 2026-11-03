@@ -108,7 +108,16 @@ if ($files === []) {
 }
 
 foreach ($files as $file) {
-    require $file;
+    try {
+        require $file;
+    } catch (Throwable $e) {
+        $GLOBALS['__test_state']['failed']++;
+        $name = 'load ' . basename($file);
+        $GLOBALS['__test_state']['failures'][] = $name;
+        echo 'FAIL  ' . $name . PHP_EOL;
+        echo '      ' . get_class($e) . ': ' . $e->getMessage() . PHP_EOL;
+        echo '      at ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+    }
 }
 
 $state = $GLOBALS['__test_state'];
