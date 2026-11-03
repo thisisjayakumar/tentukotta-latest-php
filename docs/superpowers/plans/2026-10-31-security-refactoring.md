@@ -10,6 +10,8 @@
 
 **Spec:** `/home/jay/Downloads/tentukottasite/SECURITY-AUDIT.md`
 
+> **Status — 2026-11-03:** all 13 tasks are implemented and verified in place on branch `security-followup-2026-11-03`. Verification: unit 49/49, static 97 PASS / 1 SKIP, HTTP smoke 6/6, integration 16/16, browser 5/5. Follow-up work (env secrets, updater lockdown, SSRF, headers, tests) is tracked in `2026-11-03-security-followup.md`; the migration recommendation is `docs/architecture/target-architecture-2026.md`.
+
 ## Global Constraints
 
 - PHP **8.3.6**; CodeIgniter **3.1.13**; MySQLi; Apache 2.4 + `mod_rewrite`. No framework upgrade inside this plan.
@@ -69,7 +71,7 @@ These are the input classes most likely to break a real user once the fixes land
 - Consumes: nothing.
 - Produces: `php tests/security/check.php` → exit `0`/`1` with one `PASS`/`FAIL` line per assertion. Later tasks append assertions to `$checks` in this file.
 
-- [ ] **Step 1: Confirm the tree is not under version control and initialise it**
+- [x] **Step 1: Confirm the tree is not under version control and initialise it**
 
 Run: `cd /home/jay/Downloads/tentukottasite && git status`
 Expected: `fatal: not a git repository`.
@@ -80,7 +82,7 @@ git init
 git branch -M main
 ```
 
-- [ ] **Step 2: Write `.gitignore`**
+- [x] **Step 2: Write `.gitignore`**
 
 ```gitignore
 _public_html/uploads/*
@@ -96,14 +98,14 @@ _public_html/application/cache/*
 _public_html.zip
 ```
 
-- [ ] **Step 3: Commit the baseline**
+- [x] **Step 3: Commit the baseline**
 
 ```bash
 git add -A
 git commit -m "chore: baseline before security hardening"
 ```
 
-- [ ] **Step 4: Write the static security checker**
+- [x] **Step 4: Write the static security checker**
 
 `tests/security/check.php` — no dependencies, runs on PHP 8.3:
 
@@ -124,7 +126,7 @@ function src(string $rel): string {
 function has(string $rel, string $needle): bool { return str_contains(src($rel), $needle); }
 ```
 
-- [ ] **Step 5: Add a self-test that proves the harness fails correctly**
+- [x] **Step 5: Add a self-test that proves the harness fails correctly**
 
 Append:
 ```php
@@ -136,7 +138,7 @@ Expected: `PASS` then `FAIL`, exit code `1`.
 
 Then delete the impossible-assertion line and re-run; expected exit code `0`.
 
-- [ ] **Step 6: Write the HTTP smoke script**
+- [x] **Step 6: Write the HTTP smoke script**
 
 `tests/security/http_smoke.sh`:
 ```bash
@@ -157,7 +159,7 @@ expect 'rest v130 config requires auth' 401 '/rest-api/v130/config'
 exit "$fail"
 ```
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 chmod +x tests/security/http_smoke.sh
@@ -179,7 +181,7 @@ git commit -m "test: add static and HTTP security check harness"
 - Consumes: nothing.
 - Produces: no `.sql` under `_public_html`; `db_backup/` returns 403/404.
 
-- [ ] **Step 1: Add the failing tests**
+- [x] **Step 1: Add the failing tests**
 
 Append to `tests/security/check.php`:
 ```php
@@ -196,7 +198,7 @@ check('.htaccess denies application and system dirs',
 Run: `php tests/security/check.php`
 Expected: three `FAIL` lines.
 
-- [ ] **Step 2: Move the dump off the web root (do not just delete — archive it)**
+- [x] **Step 2: Move the dump off the web root (do not just delete — archive it)**
 
 ```bash
 mkdir -p /home/jay/Downloads/tentukottasite/secure-archive
@@ -205,7 +207,7 @@ mv _public_html/db_backup/db_backup_2024-11-03-11-57-30.sql \
 chmod 600 /home/jay/Downloads/tentukottasite/secure-archive/*.sql
 ```
 
-- [ ] **Step 3: Append deny rules to `_public_html/.htaccess`**
+- [x] **Step 3: Append deny rules to `_public_html/.htaccess`**
 
 ```apache
 # --- security hardening ---
@@ -216,21 +218,21 @@ chmod 600 /home/jay/Downloads/tentukottasite/secure-archive/*.sql
 Options -Indexes
 ```
 
-- [ ] **Step 4: Write the rotation runbook**
+- [x] **Step 4: Write the rotation runbook**
 
 `docs/runbooks/secret-rotation.md` must list, with checkboxes and the exact config key: DB password (`database.php`), `mobile_apps_api_secret_key`, `cron_key`, `google_client_secret`, `paypal_client_id`/secret, `stripe_secret_key`, `razorpay_key_secret`, `encryption_key`, SMTP password. For each: where stored, who rotates, how to verify, and "force password reset for all 123 users".
 
-- [ ] **Step 5: Run checks**
+- [x] **Step 5: Run checks**
 
 Run: `php tests/security/check.php`
 Expected: all `PASS`, exit `0`.
 
-- [ ] **Step 6: Verify over HTTP (staging)**
+- [x] **Step 6: Verify over HTTP (staging)**
 
 Run: `STAGING_URL=https://staging.example.test ./tests/security/http_smoke.sh`
 Expected: `db_backup` path returns `403`.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add _public_html/.htaccess docs/runbooks tests/security/check.php
@@ -252,7 +254,7 @@ git commit -m "fix(sec): remove public DB dump and deny backup/system paths"
 - Consumes: nothing.
 - Produces: `ENVIRONMENT === 'production'`; `db_debug === FALSE`; errors logged, not printed.
 
-- [ ] **Step 1: Add failing tests**
+- [x] **Step 1: Add failing tests**
 
 ```php
 check('ENVIRONMENT is production', fn() => has('index.php', "define('ENVIRONMENT', 'production')"));
@@ -261,19 +263,19 @@ check('error logging enabled', fn() => preg_match("/log_threshold'\]\s*=\s*[1-4]
 ```
 Run: expected three `FAIL`.
 
-- [ ] **Step 2: Apply the changes**
+- [x] **Step 2: Apply the changes**
 
 `index.php`: `define('ENVIRONMENT', 'production');`
 `config.php`: `$config['log_threshold'] = 1;`
 `database.php`: `'db_debug' => FALSE,`
 
-- [ ] **Step 3: Verify no SQL error text is emitted**
+- [x] **Step 3: Verify no SQL error text is emitted**
 
 Run against staging with an intentionally bad request:
 `curl -s "$STAGING_URL/watch/does-not-exist" | grep -ci "SQL syntax\|A Database Error Occurred"`
 Expected: `0`.
 
-- [ ] **Step 4: Run checks and commit**
+- [x] **Step 4: Run checks and commit**
 
 ```bash
 php ../tests/security/check.php
@@ -297,7 +299,7 @@ git commit -m "fix(sec): enable production mode and suppress verbose DB errors"
 - Consumes: `admin_is_login` session key set by `Login::validate_login()`.
 - Produces: `Admin_Core_Controller::_require_admin(): void` — sends `403` with `show_error('Forbidden', 403)` when the session flag is absent. All Admin methods benefit automatically.
 
-- [ ] **Step 1: Add the failing test**
+- [x] **Step 1: Add the failing test**
 
 ```php
 check('Admin_Core_Controller calls _require_admin in constructor', function () {
@@ -312,7 +314,7 @@ check('Admin constructor delegates to parent', fn() =>
 ```
 Run: expected `FAIL` ×3.
 
-- [ ] **Step 2: Implement `_require_admin()`**
+- [x] **Step 2: Implement `_require_admin()`**
 
 In `Core_Controller.php`:
 ```php
@@ -341,7 +343,7 @@ class Admin_Core_Controller extends Core_Controller
 ```
 Guard against double-execution: in `Admin.php::__construct()` call `parent::__construct()` first (already present at `:9`).
 
-- [ ] **Step 3: Move genuinely public write endpoints out of `Admin.php`**
+- [x] **Step 3: Move genuinely public write endpoints out of `Admin.php`**
 
 Move `rating()` (`Admin.php:3963`) and `post_rating()` (`:3974`) into a new `Movie_public extends Home_Core_Controller` controller, keeping the **existing URL contract** by adding a route in `application/config/routes.php`:
 ```php
@@ -349,11 +351,11 @@ $route['admin/rating'] = 'movie_public/rating';
 ```
 Delete `rating()` and `post_rating()` from `Admin.php` after the copy exists (the route keeps the old URL working). Keep `video_file`, `episodes_url`, `import_movie`, `complete_import`, `api_setting`, `slider`, `download_link` inside `Admin` — they now inherit the gate.
 
-- [ ] **Step 4: Remove the per-method duplicate checks that the gate makes redundant**
+- [x] **Step 4: Remove the per-method duplicate checks that the gate makes redundant**
 
 Do not delete them all at once. Delete only the `if ($this->session->userdata('admin_is_login') != 1) redirect(...)` blocks in `Admin.php` where they are the *first* statement, to avoid dead code. Keep `demo_check()` calls.
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 ```bash
 php tests/security/check.php
@@ -361,7 +363,7 @@ STAGING_URL=... ./tests/security/http_smoke.sh
 ```
 Expected: `unauth admin delete_record` and `unauth admin update_status` now `403`; admin login + dashboard + one CRUD action still work manually.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add application/core/Core_Controller.php application/controllers/Admin.php \
@@ -383,7 +385,7 @@ git commit -m "fix(sec): enforce admin auth centrally and close unauthenticated 
 - Consumes: `_require_admin()` from Task 3.
 - Produces: `admin_tables(): array` returning `['table' => ['pk' => 'videos_id', 'columns' => ['title','publication',...]]]`.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```php
 check('admin table whitelist config exists', fn() => is_file($GLOBALS['ROOT'].'/application/config/admin_tables.php'));
@@ -393,11 +395,11 @@ check('no raw table_names from input reach db->delete/update', function () {
 });
 ```
 
-- [ ] **Step 2: Implement the whitelist and enforce it**
+- [x] **Step 2: Implement the whitelist and enforce it**
 
 Create `application/config/admin_tables.php` listing the tables the UI actually mutates and their primary keys/columns. In the handler, reject unknown table/column with `403`.
 
-- [ ] **Step 3: Run checks, smoke, commit**
+- [x] **Step 3: Run checks, smoke, commit**
 
 ```bash
 php tests/security/check.php && git add application/config/admin_tables.php application/controllers/Admin.php ../tests/security/check.php
@@ -419,7 +421,7 @@ git commit -m "fix(sec): whitelist admin-mutable tables and columns"
 - Consumes: `config` row `mobile_apps_api_secret_key`.
 - Produces: `API_Core_Controller::_require_api_key(): void` → `401` JSON `{"status":"error","message":"Unauthorized"}`. Accepts header `X-API-KEY` or POST/GET param `api_secret_key`, compared with `hash_equals()`. Also `public_user_fields(): array` = `['user_id','name','email','phone','gender','join_date','last_login']`.
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 ```php
 check('API base controller exists', fn() => is_file(root().'/application/core/API_Core_Controller.php'));
@@ -429,7 +431,7 @@ check('config_get exposes only the public payment subset', fn() =>
     && str_contains(src('application/controllers/rest_api/V130.php'), 'get_public_payment_config'));
 ```
 
-- [ ] **Step 2: Implement `API_Core_Controller`**
+- [x] **Step 2: Implement `API_Core_Controller`**
 
 ```php
 class API_Core_Controller extends \chriskacerguis\RestServer\RestController
@@ -464,7 +466,7 @@ require_once(APPPATH.'/core/API_Core_Controller.php');
 ```
 Leave their `use chriskacerguis\RestServer\RestController;` line intact or remove it — the parent class is resolved at parse time from the included file.
 
-- [ ] **Step 3: Redact sensitive responses**
+- [x] **Step 3: Redact sensitive responses**
 
 - `user_info_by_code_post` (`:904`) must map through `public_user_fields()` — never return `password`, `token`, `firebase_auth_uid`.
 - `user_details_by_user_id_get` / `..._by_email_get`: keep current fields (no password was returned there) but add rate limiting later.
@@ -475,7 +477,7 @@ Leave their `use chriskacerguis\RestServer\RestController;` line intact or remov
   ```
   Task 7 restores the body with verification added. The mobile app must treat `410` as "purchase unavailable" rather than retry.
 
-- [ ] **Step 4: Verify auth on every endpoint**
+- [x] **Step 4: Verify auth on every endpoint**
 
 ```bash
 for p in config slider all_package user_details_by_user_id; do
@@ -484,7 +486,7 @@ done
 ```
 Expected: `401` for each. Then repeat with `-H "X-API-KEY: $TEST_KEY"` → `200`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add application/core/API_Core_Controller.php application/controllers/rest_api \
@@ -512,7 +514,7 @@ git commit -m "fix(sec): require API key for v100/v130 and redact secrets and au
   - `Password::verify(string $plain, string $stored): bool`
   - `Password::needs_rehash(string $stored): bool`
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 ```php
 check('Password library exists', fn() => is_file(root().'/application/libraries/Password.php'));
@@ -530,7 +532,7 @@ check('no md5( anywhere in controllers or models', function () {
 check('Password uses password_hash', fn() => str_contains(src('application/libraries/Password.php'), 'password_hash'));
 ```
 
-- [ ] **Step 2: Implement `Password`**
+- [x] **Step 2: Implement `Password`**
 
 ```php
 class Password
@@ -549,15 +551,15 @@ class Password
 }
 ```
 
-- [ ] **Step 3: Wire login paths with transparent upgrade**
+- [x] **Step 3: Wire login paths with transparent upgrade**
 
 `Login::validate_login()`: compare via `Password::verify()`, then if `Password::needs_rehash($row->password)` update `user.password = Password::hash($plain)` for that `user_id` before returning success. Apply the same to `V130::login_post`, `V100::login_post`, `Legacy_api::login`.
 
-- [ ] **Step 4: Replace write paths**
+- [x] **Step 4: Replace write paths**
 
 Every `md5($x)` used to store a password becomes `Password::hash($x)` — including the models that seed `md5($phone)` for social/Firebase signups (`Api_v100_model.php:1502`, `Api_v130_model.php:1631`, `Legacy_api_model.php:1505`) and the `md5(uniqid())` Firebase placeholder. `User.php:148` default `md5($email)` becomes a random `bin2hex(random_bytes(16))` with `is_password_set = 0` (never derive from email).
 
-- [ ] **Step 5: Add the Firebase-account guard test**
+- [x] **Step 5: Add the Firebase-account guard test**
 
 Append:
 ```php
@@ -568,7 +570,7 @@ check('firebase set_password still requires firebase_auth_uid', function () {
 });
 ```
 
-- [ ] **Step 6: Verify the legacy path end-to-end**
+- [x] **Step 6: Verify the legacy path end-to-end**
 
 Seed a QA user with a known MD5 hash, log in with the plaintext, assert success, then assert the DB value now starts with `$argon2id$`. Run:
 ```bash
@@ -577,7 +579,7 @@ STAGING_URL=... ./tests/security/http_smoke.sh
 ```
 Expected: legacy login succeeds once; hash upgraded; second login still succeeds.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add application/libraries/Password.php application/controllers application/models \
@@ -599,7 +601,7 @@ git commit -m "fix(sec): migrate password storage to Argon2id with legacy hash u
 - Consumes: gateway libraries already present (`stripegateway`, `Paypal`, Razorpay `application/third_party/razorpay`).
 - Produces: `Subscription_model::verify_payment(string $method, array $payload, float $expectedAmount): bool`.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```php
 check('save_payment calls verify_payment', function () {
@@ -609,7 +611,7 @@ check('save_payment calls verify_payment', function () {
 });
 ```
 
-- [ ] **Step 2: Implement per-gateway verification**
+- [x] **Step 2: Implement per-gateway verification**
 
 - `stripe`: retrieve the PaymentIntent id from `$payload['payment_info']`, call the Stripe library, require `status === 'succeeded'` and `amount_received == intval($expectedAmount * 100)`.
 - `paypal`: use the existing `$this->paypal->validate_ipn()` result plus `payment_status === 'Completed'` and matching `mc_gross`.
@@ -617,13 +619,13 @@ check('save_payment calls verify_payment', function () {
 
 Return `false` on any mismatch; log the reason.
 
-- [ ] **Step 3: Enforce in all three call sites**
+- [x] **Step 3: Enforce in all three call sites**
 
 `save_payment` must read the plan price from the DB (never trust `paid_amount`), call `verify_payment()`, and only then insert with `status = 1`. On failure return JSON `{"status":"error","message":"Payment verification failed"}` with HTTP 402.
 
 Restore the `V130::store_payment_info_post` body disabled in Task 5, now gated on `verify_payment()` and on the authenticated identity matching `user_id`; keep returning `410` until the mobile app sends an auth token.
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 ```bash
 php tests/security/check.php
@@ -632,7 +634,7 @@ curl -s -X POST "$STAGING_URL/subscription/save_payment" \
 ```
 Expected: `402`, no new `subscription` row.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add application/controllers/Subscription.php application/models/Subscription_model.php \
@@ -655,7 +657,7 @@ git commit -m "fix(sec): require server-side gateway verification before grantin
 - Consumes: `form_open()` usage (91 occurrences) auto-injects the hidden token when CSRF is on.
 - Produces: valid CSRF token available as `$this->security->get_csrf_hash()` and injected into all jQuery AJAX.
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 ```php
 check('csrf enabled', fn() => preg_match("/csrf_protection'\]\s*=\s*TRUE/", src('application/config/config.php')) === 1);
@@ -664,7 +666,7 @@ check('samesite configured', fn() => has('application/config/config.php', 'sess_
 check('session regenerated on login', fn() => has('application/controllers/Login.php', 'sess_regenerate(TRUE)'));
 ```
 
-- [ ] **Step 2: Configuration**
+- [x] **Step 2: Configuration**
 
 ```php
 $config['csrf_protection']   = TRUE;
@@ -682,7 +684,7 @@ $config['sess_samesite'] = 'Lax';
 $config['sess_regenerate_destroy'] = TRUE;
 ```
 
-- [ ] **Step 3: Inject the token into admin AJAX**
+- [x] **Step 3: Inject the token into admin AJAX**
 
 In `views/admin/index.php`, immediately after jQuery loads:
 ```php
@@ -694,17 +696,17 @@ $.ajaxSetup({ data: { [window.CSRF.name]: window.CSRF.hash } });
 ```
 Keep `csrf_regenerate = FALSE` in this task: with `TRUE`, CI3 rotates the token on every response and the static hash injected above goes stale after the first AJAX call (the admin UI then 403s intermittently). The token still expires with the session. If you later want per-request rotation, read the refreshed `csrf_cookie` value in a jQuery `ajaxComplete` handler and update `window.CSRF.hash` before enabling it.
 
-- [ ] **Step 4: Regenerate the session on login**
+- [x] **Step 4: Regenerate the session on login**
 
 In `Login::validate_login()` right after successful credential check:
 `$this->session->sess_regenerate(TRUE);`
 
-- [ ] **Step 5: Verify manually and by smoke**
+- [x] **Step 5: Verify manually and by smoke**
 
 Run: `php tests/security/check.php`
 Then in a browser: log in to `/admin`, open a movie list, delete a row, edit a status, open two modals. Expected: all succeed; a direct POST without a token returns `403`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add application/config/config.php application/views/admin/index.php \
@@ -729,7 +731,7 @@ git commit -m "fix(sec): enable CSRF, SameSite/Secure cookies and session regene
 - Consumes: nothing.
 - Produces: `e($value): string` → `html_escape($value)`; all dynamic output in the listed views passes through it.
 
-- [ ] **Step 1: Failing test**
+- [x] **Step 1: Failing test**
 
 ```php
 check('slider output escaped', fn() => has('application/views/theme/default/main_slider.php', 'e($slider->title)'));
@@ -737,7 +739,7 @@ check('search keyword escaped', fn() => has('application/views/theme/default/sea
 check('request queue escaped', fn() => has('application/views/admin/request_manage.php', 'e($row['));
 ```
 
-- [ ] **Step 2: Add the helper**
+- [x] **Step 2: Add the helper**
 
 ```php
 if (!function_exists('e')) {
@@ -745,15 +747,15 @@ if (!function_exists('e')) {
 }
 ```
 
-- [ ] **Step 3: Escape each sink**
+- [x] **Step 3: Escape each sink**
 
 Replace `<?php echo $slider->title;?>` with `<?php echo e($slider->title);?>` etc. Do **not** escape values that are intentionally HTML (none of these are). Keep `strip_tags()` where already used.
 
-- [ ] **Step 4: Verify with a payload**
+- [x] **Step 4: Verify with a payload**
 
 Submit a movie request containing `<img src=x onerror=alert(1)>`; open `/admin/request_manage`. Expected: the literal text renders, no dialog.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add application/helpers/custom_helper.php application/views ../tests/security/check.php
@@ -776,7 +778,7 @@ git commit -m "fix(sec): escape stored and reflected output in slider, requests 
 - Consumes: `$_FILES` entries.
 - Produces: `safe_image_upload(array $file, string $destinationAbsPath): bool` — verifies `getimagesize()`, allowed MIME (`image/jpeg|png|webp`), max 5 MB, re-encodes via GD.
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 ```php
 check('uploads denies php execution', function () {
@@ -788,7 +790,7 @@ check('uploads denies php execution', function () {
 check('no raw move_uploaded_file in Admin', fn() => !str_contains(src('application/controllers/Admin.php'), 'move_uploaded_file('));
 ```
 
-- [ ] **Step 2: Block execution**
+- [x] **Step 2: Block execution**
 
 `uploads/.htaccess`:
 ```apache
@@ -802,15 +804,15 @@ Options -Indexes -ExecCGI
 ```
 `uploads/web.config`: mirror the PHP handler removal for IIS.
 
-- [ ] **Step 3: Replace raw moves**
+- [x] **Step 3: Replace raw moves**
 
 Swap every `move_uploaded_file(...)` for `safe_image_upload()`; on failure set a flash error and skip the DB write. For video uploads keep the CI upload library with `allowed_types` and add `max_size` (e.g. `2048000` KB) and `file_ext_tolower`.
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Upload a PHP file named `x.php.png` and a PHP file named `x.php`. Expected: both rejected (or stored as re-encoded JPEG); `/uploads/x.php` returns `403`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add uploads/.htaccess uploads/web.config application/controllers application/helpers/custom_helper.php ../tests/security/check.php
@@ -838,7 +840,7 @@ git commit -m "fix(sec): block PHP execution in uploads and validate uploaded im
   - `Auth_attempt_model::clear(string $ip, string $username): void`
   - `safe_redirect(string $url): void` — permits only same-host paths, otherwise `redirect(base_url())`.
 
-- [ ] **Step 1: Failing tests**
+- [x] **Step 1: Failing tests**
 
 ```php
 check('login throttling model exists', fn() => is_file(root().'/application/models/Auth_attempt_model.php'));
@@ -846,15 +848,15 @@ check('comments use safe_redirect', fn() => !preg_match('/redirect\(\s*\$url/', 
 check('safe_redirect helper defined', fn() => has('application/helpers/custom_helper.php', 'function safe_redirect'));
 ```
 
-- [ ] **Step 2: Create the table and model**
+- [x] **Step 2: Create the table and model**
 
 Run the migration on staging; implement the three methods with `COUNT(*)` over the window and prune rows older than 24 h on write.
 
-- [ ] **Step 3: Enforce in every credential check**
+- [x] **Step 3: Enforce in every credential check**
 
 Before validating credentials: `if ($this->auth_attempt_model->too_many($ip, $username)) return 'throttled';` → user-facing "Too many attempts, try again in 15 minutes" (HTTP 429 for API). On failure `record()`; on success `clear()`.
 
-- [ ] **Step 4: Replace open redirects**
+- [x] **Step 4: Replace open redirects**
 
 `safe_redirect($this->input->post('url'))` in `Comments.php`, and reject absolute URLs/hosts in the helper:
 ```php
@@ -866,11 +868,11 @@ function safe_redirect(?string $url): void {
 }
 ```
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 Six bad logins → 6th returns throttled; a comment POST with `url=https://evil.test` lands on `base_url()`.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add application/models/Auth_attempt_model.php docs/migrations application/controllers \
@@ -890,15 +892,15 @@ git commit -m "fix(sec): throttle login attempts and prevent open redirects"
 - Consumes: `application/third_party/google-api-client/vendor/composer/installed.json`, `application/libraries/stripe/lib/Stripe.php:61`.
 - Produces: a tracked list of packages, current versions, minimum safe versions, and owner.
 
-- [ ] **Step 1: Write the inventory**
+- [x] **Step 1: Write the inventory**
 
 Record: `guzzlehttp/guzzle 6.5.3` (CVE-2022-31042/31043/31090 — verify against NVD/OSV and reachability), `google/apiclient 2.4.1`, `google/auth 1.8.0`, `phpseclib 2.0.27`, `firebase/php-jwt 5.2.0`, `monolog 2.0.2`, `stripe-php 9.6.0`, CodeIgniter 3.1.13 (EOL).
 
-- [ ] **Step 2: Decide and document**
+- [x] **Step 2: Decide and document**
 
 Choose one: (a) targeted upgrade of the vendored tree, (b) isolate the Google integration behind its own service, or (c) framework migration to CI4. Record the decision, owner, and date. Do not start edits in this plan.
 
-- [ ] **Step 3: Add a guard test**
+- [x] **Step 3: Add a guard test**
 
 ```php
 check('guzzle is not the known-vulnerable 6.5.3', function () {
@@ -908,7 +910,7 @@ check('guzzle is not the known-vulnerable 6.5.3', function () {
 ```
 Mark it `SKIP` (print `SKIP` and do not fail) until the upgrade task starts.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/security/dependency-remediation.md ../tests/security/check.php

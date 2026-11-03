@@ -44,19 +44,19 @@
 - Produces: `tests/bootstrap.php` defines `BASEPATH`, `APPPATH`, `FCPATH` and stubs `get_instance()`, `base_url()`, `redirect()`, `html_escape()` so CI libraries/helpers can be loaded without booting CI.
 - Produces: `test(string $name, callable $fn)`, `assert_same($expected, $actual, string $message = '')`, `assert_true($value, string $message = '')`, `assert_false(...)`, `assert_throws(callable $fn, string $class)`.
 
-- [ ] **Step 1: Write the failing harness self-test**
+- [x] **Step 1: Write the failing harness self-test**
 
 `tests/unit/harness_test.php` asserts `assert_same(1, 1)` passes and that a deliberately failing assertion is reported. Run `php tests/run.php` and watch it fail because the runner does not exist yet.
 
-- [ ] **Step 2: Implement `tests/run.php` + `tests/bootstrap.php`** until the self-test passes.
+- [x] **Step 2: Implement `tests/run.php` + `tests/bootstrap.php`** until the self-test passes.
 
-- [ ] **Step 3: Add `password_test.php`** — hash is not plaintext, verify accepts the right password, rejects the wrong one, legacy 32-hex MD5 verifies, `needs_rehash()` true for MD5 and false for a fresh Argon2/bcrypt hash, `random()` is 64 hex chars and unique.
+- [x] **Step 3: Add `password_test.php`** — hash is not plaintext, verify accepts the right password, rejects the wrong one, legacy 32-hex MD5 verifies, `needs_rehash()` true for MD5 and false for a fresh Argon2/bcrypt hash, `random()` is 64 hex chars and unique.
 
-- [ ] **Step 4: Add `env_test.php`** — parses `KEY=value`, quoted values, comments, blank lines, ignores malformed lines, does not overwrite an already-set process variable, `env()` returns the default when missing and preserves an empty string when set.
+- [x] **Step 4: Add `env_test.php`** — parses `KEY=value`, quoted values, comments, blank lines, ignores malformed lines, does not overwrite an already-set process variable, `env()` returns the default when missing and preserves an empty string when set.
 
-- [ ] **Step 5: Add `safe_redirect_test.php`** — records the URL passed to `redirect()`; rejects `https://evil.test`, `//evil.test`, `javascript:alert(1)`, backslash and control characters; allows `/movies` and `watch/abc`.
+- [x] **Step 5: Add `safe_redirect_test.php`** — records the URL passed to `redirect()`; rejects `https://evil.test`, `//evil.test`, `javascript:alert(1)`, backslash and control characters; allows `/movies` and `watch/abc`.
 
-- [ ] **Step 6: Run and commit**
+- [x] **Step 6: Run and commit**
 
 ```bash
 php tests/run.php
@@ -86,19 +86,19 @@ git commit -m "test: add dependency-free unit test harness"
 - `env_bool(string $key, bool $default = false)` treats `1/true/yes/on` as true and `0/false/no/off/empty` as false.
 - Config keys: `DB_HOSTNAME`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE`, `BASE_URL`, `ENCRYPTION_KEY`, `SESSION_EXPIRATION`, `CI_ENV`.
 
-- [ ] **Step 1: Add failing static assertions to `tests/security/check.php`**: no literal DB password in `database.php`, no literal `encryption_key` value, `db_debug` literally `FALSE`, no `rest_valid_logins` credential pair, `index.php` loads `config/env.php`, `.env.example` exists, `.env` is git-ignored.
+- [x] **Step 1: Add failing static assertions to `tests/security/check.php`**: no literal DB password in `database.php`, no literal `encryption_key` value, `db_debug` literally `FALSE`, no `rest_valid_logins` credential pair, `index.php` loads `config/env.php`, `.env.example` exists, `.env` is git-ignored.
 
-- [ ] **Step 2: Implement `env.php` and the `index.php` hook.**
+- [x] **Step 2: Implement `env.php` and the `index.php` hook.**
 
-- [ ] **Step 3: Create the local `.env`** with the current working staging values (never committed), plus `.env.example` with placeholders.
+- [x] **Step 3: Create the local `.env`** with the current working staging values (never committed), plus `.env.example` with placeholders.
 
-- [ ] **Step 4: Move the DB, base URL, encryption key, session lifetime and environment flag to `env()`.** Keep behaviour identical when the variables are present.
+- [x] **Step 4: Move the DB, base URL, encryption key, session lifetime and environment flag to `env()`.** Keep behaviour identical when the variables are present.
 
-- [ ] **Step 5: Remove the hardcoded REST basic-auth pair** and set `db_debug` explicitly `FALSE`.
+- [x] **Step 5: Remove the hardcoded REST basic-auth pair** and set `db_debug` explicitly `FALSE`.
 
-- [ ] **Step 6: Verify** — `php tests/run.php`, `php tests/security/check.php`, `curl -I http://localhost:8080/` returns 200, and a request to `/rest-api/v130/config` still fails auth as before.
+- [x] **Step 6: Verify** — `php tests/run.php`, `php tests/security/check.php`, `curl -I http://localhost:8080/` returns 200, and a request to `/rest-api/v130/config` still fails auth as before.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add .env.example _public_html/application/config _public_html/index.php tests
@@ -119,11 +119,11 @@ git commit -m "fix(sec): load deployment secrets from the environment"
 - Responses served by PHP carry `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Cross-Origin-Opener-Policy: same-origin`, and `Strict-Transport-Security` only when the request is HTTPS.
 - `robots.txt` keeps `/admin/` disallowed and adds `/install/`, `/update/` and `/rest-api/`.
 
-- [ ] **Step 1: Add failing assertions** (static + HTTP smoke header check).
-- [ ] **Step 2: Implement the headers** in `index.php`, before any output, guarded so CLI runs are unaffected.
-- [ ] **Step 3: Update `robots.txt`.**
-- [ ] **Step 4: Verify with `curl -sI`** and the smoke script.
-- [ ] **Step 5: Commit** — `fix(sec): send baseline security headers`.
+- [x] **Step 1: Add failing assertions** (static + HTTP smoke header check).
+- [x] **Step 2: Implement the headers** in `index.php`, before any output, guarded so CLI runs are unaffected.
+- [x] **Step 3: Update `robots.txt`.**
+- [x] **Step 4: Verify with `curl -sI`** and the smoke script.
+- [x] **Step 5: Commit** — `fix(sec): send baseline security headers`.
 
 ---
 
@@ -139,12 +139,12 @@ git commit -m "fix(sec): load deployment secrets from the environment"
 - `Safe_zip::extract(string $zipPath, string $destination): bool` — refuses path traversal (`..`), absolute paths, symlinks, more than 2 000 entries, entries larger than 50 MB, archives larger than 200 MB, and any entry whose extension is `php`, `phtml`, `phar` or `htaccess`.
 - `Updater::process()` returns HTTP 403 with a message unless `env_bool('ALLOW_WEB_UPDATER', false)` is true; when enabled it still requires an admin session, a CSRF token, a `.zip` upload, and `Safe_zip`.
 
-- [ ] **Step 1: Write `safe_zip_test.php` first** — build a benign zip (passes) and a traversal zip (rejected) and an absolute-path zip (rejected) using `ZipArchive` and, where needed, a pre-built fixture created with Python. Watch them fail.
-- [ ] **Step 2: Implement `Safe_zip`.**
-- [ ] **Step 3: Add the updater static assertions** (no `require './update/`, no `mysqli_multi_query`, guard uses `ALLOW_WEB_UPDATER`).
-- [ ] **Step 4: Gate `Updater::process()`**, remove the raw `require` and `multi_query` from the default path, and load `Safe_zip` when enabled.
-- [ ] **Step 5: Verify** — unit suite, static suite, and `curl -X POST http://localhost:8080/updater/process` for an anonymous user does not reach the upload logic.
-- [ ] **Step 6: Commit** — `fix(sec): disable web updater by default and validate archives`.
+- [x] **Step 1: Write `safe_zip_test.php` first** — build a benign zip (passes) and a traversal zip (rejected) and an absolute-path zip (rejected) using `ZipArchive` and, where needed, a pre-built fixture created with Python. Watch them fail.
+- [x] **Step 2: Implement `Safe_zip`.**
+- [x] **Step 3: Add the updater static assertions** (no `require './update/`, no `mysqli_multi_query`, guard uses `ALLOW_WEB_UPDATER`).
+- [x] **Step 4: Gate `Updater::process()`**, remove the raw `require` and `multi_query` from the default path, and load `Safe_zip` when enabled.
+- [x] **Step 5: Verify** — unit suite, static suite, and `curl -X POST http://localhost:8080/updater/process` for an anonymous user does not reach the upload logic.
+- [x] **Step 6: Commit** — `fix(sec): disable web updater by default and validate archives`.
 
 ---
 
@@ -162,11 +162,11 @@ git commit -m "fix(sec): load deployment secrets from the environment"
 - The legacy API contract is unchanged: the same `api_secret_key` parameter still works.
 - `find_in_set` inputs in `Legacy_api_model` are cast to `(int)` before interpolation.
 
-- [ ] **Step 1: Write failing tests.** Static: no `== $api_secret_key`; controller mentions `X-API-KEY` and `_api_key()`; every `api_secret_key` read goes through `_api_key()`. Unit: extract the comparison into a testable helper if a direct model test is impractical.
-- [ ] **Step 2: Implement** the comparison, the header accessor, and the mechanical replacement.
-- [ ] **Step 3: Cast numeric `find_in_set` inputs.**
-- [ ] **Step 4: Verify** with the unit + static suites and an HTTP call to `/legacy-api/test` using both the header and the parameter.
-- [ ] **Step 5: Commit** — `fix(sec): harden legacy API key handling`.
+- [x] **Step 1: Write failing tests.** Static: no `== $api_secret_key`; controller mentions `X-API-KEY` and `_api_key()`; every `api_secret_key` read goes through `_api_key()`. Unit: extract the comparison into a testable helper if a direct model test is impractical.
+- [x] **Step 2: Implement** the comparison, the header accessor, and the mechanical replacement.
+- [x] **Step 3: Cast numeric `find_in_set` inputs.**
+- [x] **Step 4: Verify** with the unit + static suites and an HTTP call to `/legacy-api/test` using both the header and the parameter.
+- [x] **Step 5: Commit** — `fix(sec): harden legacy API key handling`.
 
 ---
 
@@ -183,11 +183,11 @@ git commit -m "fix(sec): load deployment secrets from the environment"
 - `is_safe_remote_url(string $url, ?callable $resolver = null): bool` — http/https only, no userinfo, no control characters, rejects numeric/hex hosts, resolves the host and refuses if any address is private.
 - `Common_model::grab_image()` refuses unsafe URLs, verifies TLS, disables non-HTTP protocols, caps redirects at 3, caps download size and time, and does not create the destination file on failure.
 
-- [ ] **Step 1: Write `remote_url_test.php` first** — accept `https://example.com/a.jpg` (stub resolver returns `93.184.216.34`); reject `file:///etc/passwd`, `gopher://`, `http://127.0.0.1/`, `http://10.0.0.5/`, `http://169.254.169.254/`, `http://[::1]/`, `http://2130706433/`, `http://user:pass@example.com/`, and a host resolving to a private IP.
-- [ ] **Step 2: Implement the helpers.**
-- [ ] **Step 3: Rewrite `grab_image()`** on top of them.
-- [ ] **Step 4: Verify** the unit suite and a real TMDB image download through the staging app if a safe URL is available; otherwise assert the negative path.
-- [ ] **Step 5: Commit** — `fix(sec): block SSRF in remote image fetching`.
+- [x] **Step 1: Write `remote_url_test.php` first** — accept `https://example.com/a.jpg` (stub resolver returns `93.184.216.34`); reject `file:///etc/passwd`, `gopher://`, `http://127.0.0.1/`, `http://10.0.0.5/`, `http://169.254.169.254/`, `http://[::1]/`, `http://2130706433/`, `http://user:pass@example.com/`, and a host resolving to a private IP.
+- [x] **Step 2: Implement the helpers.**
+- [x] **Step 3: Rewrite `grab_image()`** on top of them.
+- [x] **Step 4: Verify** the unit suite and a real TMDB image download through the staging app if a safe URL is available; otherwise assert the negative path.
+- [x] **Step 5: Commit** — `fix(sec): block SSRF in remote image fetching`.
 
 ---
 
@@ -204,10 +204,10 @@ git commit -m "fix(sec): load deployment secrets from the environment"
 - `STAGING_URL=http://localhost:8080 ./tests/integration/api_contract.sh` checks: security headers, `db_backup` denial, anonymous admin writes return 403, REST v130 without a key returns 401 JSON, legacy API without a key returns the legacy JSON error, REST with the key from the local DB returns 200, and public pages return 200.
 - `npx playwright test --config=tests/browser/playwright.config.js` uses `/usr/bin/google-chrome`; covers home page render, `/movies`, `/search?q=...`, login page, and the admin redirect.
 
-- [ ] **Step 1: Write the integration script** and run it; fix any real regressions found.
-- [ ] **Step 2: Write the Playwright config/spec** and run it.
-- [ ] **Step 3: Document how to run each suite** in `tests/README.md`.
-- [ ] **Step 4: Commit** — `test: add integration and browser regression suites`.
+- [x] **Step 1: Write the integration script** and run it; fix any real regressions found.
+- [x] **Step 2: Write the Playwright config/spec** and run it.
+- [x] **Step 3: Document how to run each suite** in `tests/README.md`.
+- [x] **Step 4: Commit** — `test: add integration and browser regression suites`.
 
 ---
 
@@ -220,9 +220,9 @@ git commit -m "fix(sec): load deployment secrets from the environment"
 **Interfaces:**
 - The document recommends a target stack with supported-version evidence, weighs Laravel vs. Symfony vs. staying on CI3, describes a phased strangler migration (API first, then auth, then admin), lists data/session compatibility risks, a rollback path, and an explicit "do not start yet" gate.
 
-- [ ] **Step 1: Write the evaluation** with the version/support facts already verified (Laravel 13 supports PHP 8.3–8.5 with security support into 2028; PHP 8.3 EOL Dec 2027; PHP 8.5 current).
-- [ ] **Step 2: Update the existing modernization plan's version references.**
-- [ ] **Step 3: Commit** — `docs: recommend target architecture and migration path`.
+- [x] **Step 1: Write the evaluation** with the version/support facts already verified (Laravel 13 supports PHP 8.3–8.5 with security support into 2028; PHP 8.3 EOL Dec 2027; PHP 8.5 current).
+- [x] **Step 2: Update the existing modernization plan's version references.**
+- [x] **Step 3: Commit** — `docs: recommend target architecture and migration path`.
 
 ---
 
