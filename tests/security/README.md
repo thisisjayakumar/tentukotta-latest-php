@@ -6,6 +6,17 @@ Runs PHP 8.3–only assertions against the web root (`_public_html`). Exit code 
 
 Later tasks append assertions to the file, so the harness **grows with the code** and always fails-fast on regressions.
 
+## Unit tests — `php tests/run.php`
+
+Dependency-free runner for `tests/unit/*_test.php`. It loads `tests/bootstrap.php`, which defines the CodeIgniter constants and stubs `redirect()`/`base_url()` so libraries and helpers can be tested without booting the framework or a database.
+
+```bash
+php tests/run.php              # everything
+php tests/run.php password     # only tests whose name matches
+```
+
+Exit code `0` = all pass. The harness self-test (`tests/unit/harness_test.php`) proves a failing assertion is detected.
+
 ## HTTP smoke — `./tests/security/http_smoke.sh`
 
 Requires `$STAGING_URL` (e.g. `https://staging.example.test`). Probes live endpoints and asserts status codes. Used only after a staging deploy; never against a public URL.
