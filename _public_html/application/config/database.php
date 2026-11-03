@@ -76,14 +76,14 @@ $query_builder = TRUE;
 
 $db['default'] = array(
     'dsn' => '',
-    'hostname' => 'localhost',
-    'username' => 'u473259675_pp_stream_1',
-    'password' => '<redacted>',
-    'database' => 'u473259675_movies_db',
+    'hostname' => env('DB_HOSTNAME', 'localhost'),
+    'username' => env('DB_USERNAME', ''),
+    'password' => env('DB_PASSWORD', ''),
+    'database' => env('DB_DATABASE', ''),
     'dbdriver' => 'mysqli',
     'dbprefix' => '',
     'pconnect' => FALSE, //set it FALSE if your site has a huge trafic and/or you are saving session data in database
-    'db_debug' => (ENVIRONMENT !== 'production'),
+    'db_debug' => FALSE,
     'cache_on' => FALSE,
     'cachedir' => '',
     'char_set' => 'utf8',

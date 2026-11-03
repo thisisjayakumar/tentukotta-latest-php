@@ -87,7 +87,7 @@ check('.htaccess denies backup extensions', fn() => has('.htaccess', 'bak'));
 // -----------------------------------------------------------------------------
 // TASK 2: production mode + safe error handling
 // -----------------------------------------------------------------------------
-check('ENVIRONMENT is production', fn() => has('index.php', "define('ENVIRONMENT', 'production')"));
+check('ENVIRONMENT defaults to production', fn() => has('index.php', "define('ENVIRONMENT', env('CI_ENV', 'production'))"));
 check('db_debug not hardcoded TRUE', fn() => !preg_match("/'db_debug'\s*=>\s*TRUE/i", src('application/config/database.php')));
 check('error logging enabled (threshold >= 1)', fn() => preg_match("/log_threshold'\]\s*=\s*[1-4]/", src('application/config/config.php')) === 1);
 
@@ -430,6 +430,41 @@ check('inventory records the Guzzle CVE risk', function () {
         && str_contains($s, 'CVE-2022-31042')
         && str_contains($s, 'CodeIgniter');
 });
+// -----------------------------------------------------------------------------
+// FOLLOW-UP: environment-driven configuration (no secrets in version control)
+// -----------------------------------------------------------------------------
+$repo_root = dirname(__DIR__, 2);
+check('index.php loads the env loader', fn() => has('index.php', 'config/env.php'));
+check('database credentials come from env', function () {
+    $s = src('application/config/database.php');
+    return str_contains($s, "env('DB_PASSWORD'")
+        && !str_contains($s, '<redacted>');
+});
+check('database host and name come from env', function () {
+    $s = src('application/config/database.php');
+    return str_contains($s, "env('DB_HOSTNAME'")
+        && str_contains($s, "env('DB_DATABASE'");
+});
+check('encryption key comes from env', function () {
+    $s = src('application/config/config.php');
+    return str_contains($s, "env('ENCRYPTION_KEY'")
+        && !str_contains($s, "'<redacted>'");
+});
+check('base URL comes from env', fn() => has('application/config/config.php', "env('BASE_URL'"));
+check('db_debug is explicitly FALSE', fn() => preg_match(
+    "/'db_debug'\\s*=>\\s*FALSE/",
+    src('application/config/database.php')) === 1);
+check('no hardcoded REST basic-auth pair', fn() => !has(
+    'application/config/rest.php', "'admin' => '1234'"));
+check('.env.example exists and documents the DB password', function () use ($repo_root) {
+    $p = $repo_root . '/.env.example';
+    return is_file($p) && str_contains(file_get_contents($p), 'DB_PASSWORD=');
+});
+check('.env is git-ignored', function () use ($repo_root) {
+    $p = $repo_root . '/.gitignore';
+    return is_file($p) && preg_match('/^\\.env$/m', file_get_contents($p)) === 1;
+});
+
 $installed = root() . '/application/third_party/google-api-client/vendor/composer/installed.json';
 if (is_file($installed) && str_contains(file_get_contents($installed), '"version": "6.5.3"')) {
     skip('guzzle is not the known-vulnerable 6.5.3', 'tracked in docs/security/dependency-remediation.md');

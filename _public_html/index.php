@@ -18,10 +18,14 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	// define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+// Deployment secrets and environment live in the repository-root .env file
+// (git-ignored) or in real process environment variables. Real env vars win.
+require_once __DIR__ . '/application/config/env.php';
+env_load(dirname(__DIR__) . '/.env');
+env_load(__DIR__ . '/.env');
 
-//set the environment to production after installation
-define('ENVIRONMENT', 'production');
+// Set CI_ENV=development only on a local machine.
+define('ENVIRONMENT', env('CI_ENV', 'production'));
 
 // we don't want to access the main project before installation. redirect to installation page
 if (ENVIRONMENT === 'pre_installation') {

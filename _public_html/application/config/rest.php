@@ -215,8 +215,9 @@ $config['auth_library_function'] = '';
 // $ci->db->select('username','password');
 // $auth_user = $ci->db->get('rest_logins')->results();
 
-// $config['rest_valid_logins'] = $auth_user;
-$config['rest_valid_logins'] = ['admin' => '1234'];
+// Basic-auth logins are not used. REST authentication is enforced centrally by
+// API_Core_Controller using the mobile_apps_api_secret_key setting.
+$config['rest_valid_logins'] = array();
 
 /*
 |--------------------------------------------------------------------------

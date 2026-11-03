@@ -14,9 +14,10 @@
 | path to your installation.
 |
 */
-$base_url = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'];
-$base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
-$config['base_url'] = $base_url;
+$default_base_url = (isset($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off' ? 'https://' : 'http://')
+    . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+    . str_replace(basename($_SERVER['SCRIPT_NAME'] ?? '/index.php'), '', $_SERVER['SCRIPT_NAME'] ?? '/index.php');
+$config['base_url'] = rtrim((string) env('BASE_URL', $default_base_url), '/') . '/';
 
 // demo mode
 $config['is_demo'] = false;
@@ -229,7 +230,7 @@ $config['cache_path'] = '';
 | MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = '<redacted>';
+$config['encryption_key'] = (string) env('ENCRYPTION_KEY', '');
 
 /*
 |--------------------------------------------------------------------------
@@ -251,7 +252,7 @@ $config['encryption_key'] = '<redacted>';
 */
 $config['sess_driver'] 				= 'database';
 $config['sess_cookie_name'] 		= 'ci_session';
-$config['sess_expiration'] 			= 0;
+$config['sess_expiration'] 			= (int) env('SESSION_EXPIRATION', 7200);
 $config['sess_save_path'] 			= 'ci_sessions';
 $config['sess_match_ip'] 			= FALSE;
 $config['sess_time_to_update'] 		= 300;

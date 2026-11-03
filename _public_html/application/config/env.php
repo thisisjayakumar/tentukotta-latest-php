@@ -1,8 +1,10 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
-
 /**
  * Minimal dotenv loader.
+ *
+ * This file is require'd directly by index.php *before* BASEPATH exists, so it
+ * deliberately has no `defined('BASEPATH')` guard. It only defines functions;
+ * requests to application/ are denied by the web-root .htaccess.
  *
  * Deployment secrets live in the repository-root `.env` file (git-ignored) or
  * in real process environment variables. Real environment variables always
