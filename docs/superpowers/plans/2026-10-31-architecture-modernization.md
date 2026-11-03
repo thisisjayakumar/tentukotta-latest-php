@@ -4,6 +4,8 @@
 > **Readers:** CTO, lead developer(s), DevOps.
 > **Goal:** Upgrade the stack, refactor the monolith into "best-structured production code", and eliminate the live production errors — without breaking streaming, payments, or the Android app.
 > **Prerequisite:** The security refactoring plan (`2026-10-31-security-refactoring.md`) should be run first; this plan assumes the app is hardened in place but not yet re-architected.
+>
+> **Status update — 2026-11-03:** the in-place hardening is implemented and covered by unit, static, HTTP, integration and browser suites. Deployment secrets now come from `.env` (`application/config/env.php`), the web updater is disabled by default, and the remote-image path has SSRF guards. The binding recommendation and the migration gate now live in [`docs/architecture/target-architecture-2026.md`](../../architecture/target-architecture-2026.md); where this plan and that evaluation disagree, the evaluation wins. Operational notes in §3 that describe a degraded host are historical and have been superseded by the local/staging verification.
 
 ---
 
@@ -91,8 +93,8 @@ Root causes, one per line:
 ### 2.2 Recommended target stack
 | Layer | Decision | Rationale |
 |---|---|---|
-| Framework | **Laravel 12 (PHP 8.4)** | Typed architecture, built-in migrations/validation/auth/rate-limiting, huge talent pool, CI3 → Laravel path is well documented; CI4 was considered but Laravel's ecosystem for a PHP team is larger and more hireable. |
-| Language | PHP 8.4 | Latest stable; matches current hosting capability. |
+| Framework | **Laravel 13 (PHP 8.5)** | Typed architecture, built-in migrations/validation/auth/rate-limiting, huge talent pool, CI3 → Laravel path is well documented; CI4 was considered but Laravel's ecosystem for a PHP team is larger and more hireable. |
+| Language | PHP 8.5 | Latest stable; matches current hosting capability. |
 | DB | MySQL 8 | Keep; MyISAM `download_link` must be converted to InnoDB during migration. |
 | Cache | **Redis** | Sessions (5–10× faster than DB sessions), route/config cache, job queues, rate limits. |
 | Queue | Redis + Laravel queues | Offload email, image fetching, notification push, subscription expiration checks, video thumbnail regeneration. |
@@ -104,14 +106,14 @@ Root causes, one per line:
 
 ### 2.3 Alternative options considered (and why they were rejected)
 1. **In-place CI3 patching (PHP 8.2+ compatibility + `ENVIRONMENT=production`).** Cheapest, fastest, but you get a patched EOL framework forever. Only the prod-error layer is fixed; nothing else improves. **Rejected as the end-state** — acceptable as a *temporary* bridge (< 4 weeks) while the new system ships.
-2. **Laravel 11 → 12 upgrade only (monolith, monolithic MVC).** Good middle ground; removes CI3 pain, adds quality baselines, keeps all 97k lines + DB. **Rejected** — the business wants a *restructure*, and a monolithic Laravel 12 with the same 147 views / giant controllers buys you a better framework but not better structure. This plan makes Laravel 12 the *foundation* of the refactor, not a destination by itself.
-3. **Symfony monolith.** Stronger standards compliance, but smaller PHP talent pool than Laravel and a steeper migration curve from CI3 conventions. **Rejected** for team/productivity reasons; Laravel 12 chosen.
+2. **Laravel 13 → 13 upgrade only (monolith, monolithic MVC).** Good middle ground; removes CI3 pain, adds quality baselines, keeps all 97k lines + DB. **Rejected** — the business wants a *restructure*, and a monolithic Laravel 13 with the same 147 views / giant controllers buys you a better framework but not better structure. This plan makes Laravel 13 the *foundation* of the refactor, not a destination by itself.
+3. **Symfony monolith.** Stronger standards compliance, but smaller PHP talent pool than Laravel and a steeper migration curve from CI3 conventions. **Rejected** for team/productivity reasons; Laravel 13 chosen.
 4. **Headless API + separate SPA / Flutter app.** Maximum modernization but multiplies scope (two apps, auth tokens, CDN strategy) and delays the business value. **Deferred** — keep the server-rendered Blade front-end as the strangler's first phase; the API becomes headless-ready only after the new backend is proven.
 5. **Full re-architecture with event sourcing / clean arch / microservices.** Over-engineered for a single-streaming-site business. **Rejected.**
 
 ### 2.4 Target topology (single VPS)
 ```
-Cloudflare (DNS + TLS + WAF)  →  Load balancer (Traefik/Nginx)  →  Laravel 12 app
+Cloudflare (DNS + TLS + WAF)  →  Load balancer (Traefik/Nginx)  →  Laravel 13 app
                                                                 →  Redis (sessions, queue, cache)
                                                                 →  MySQL 8
                                                                 →  Object storage (MinIO/S3) for video  [phase 2]
@@ -120,7 +122,7 @@ Cloudflare (DNS + TLS + WAF)  →  Load balancer (Traefik/Nginx)  →  Laravel 1
 - **Video path (phase 2):** move video + poster images to S3-compatible object storage behind signed URLs; keep download links as-is (they are already external).
 
 ### 2.5 Data & domain boundaries (the new structure)
-The domain splits into **bounded contexts**, each a Laravel module/package (Laravel 12 supports native packages in `/modules`):
+The domain splits into **bounded contexts**, each a Laravel module/package (Laravel 13 supports native packages in `/modules`):
 
 1. **Content** — videos, episodes, seasons, video_files, download_links, tvseries, genres, countries, stars, directors, languages, tags, years, live_tv, live_tv_category, sliders, homepage_sections, quality, video_type. (The 70% bulk of the CMS.)
 2. **User / Auth** — users, ci_sessions → `sessions` table, password reset, firebase_auth_uid, token, device, roles (admin/subscriber/gate_man), gate_man RBAC.
@@ -154,9 +156,9 @@ Goal: restore green prod + establish a defensible baseline so the refactor has a
 3. Ship the security-refactoring plan first (13 tasks) — hardening the *existing* CI3 app before touching its shape. This also produces the `tests/security/check.php` harness used throughout.
 4. Install **baseline tooling** (optional but recommended): PHPStan `@level 5` rule configuration + a simple `phpcs` PSR-12 set, plus a GitHub Actions workflow that runs them. No PHPUnit yet.
 
-### Phase 1 — Laravel 12 skeleton + content read-model (3–4 weeks)
-Goal: a working Laravel 12 app that **reads the existing MySQL DB** and serves public catalog pages + movie/TV/watch URLs — same URLs, same HTML output, no write paths yet.
-1. Laravel 12 install; environment via `.env` (never commit); Redis connection.
+### Phase 1 — Laravel 13 skeleton + content read-model (3–4 weeks)
+Goal: a working Laravel 13 app that **reads the existing MySQL DB** and serves public catalog pages + movie/TV/watch URLs — same URLs, same HTML output, no write paths yet.
+1. Laravel 13 install; environment via `.env` (never commit); Redis connection.
 2. **Schema migration plan:** audit each of the 43 tables; write idempotent, reversible migrations for the new shape. Key schema changes:
    - `download_link` MyISAM → InnoDB (rebuild as InnoDB, then rename).
    - `user`: add `email_verified_at`, `remember_token`, normalize `role` (enum or tinyint); keep `firebase_auth_uid` and `token`.
@@ -310,7 +312,7 @@ Every Laravel component produced must satisfy:
 ## 12. First actions (next 5 working days)
 
 1. **Fix the prod outage** (§3) — credentials + `ENVIRONMENT=production` — on the live host. [Owner: ops / whoever has Hostinger access]
-2. **Confirm hosting decision** (§10-Q1): order VPS with PHP 8.4 + MySQL 8 + Redis, or stay shared for 2 more weeks.
+2. **Confirm hosting decision** (§10-Q1): order VPS with PHP 8.5 + MySQL 8 + Redis, or stay shared for 2 more weeks.
 3. **Start the security plan** (`2026-10-31-security-refactoring.md`) — run it against CI3 so we don't re-architect unhardened code.
-4. **Provision staging Laravel 12 skeleton** and the first content read-model (Phase 1, step 2).
+4. **Provision staging Laravel 13 skeleton** and the first content read-model (Phase 1, step 2).
 5. **Schedule go/no-go gates** with the business before each migration window — Phase 1 and M4 are the highest-risk, highest-reward gates.
