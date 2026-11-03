@@ -78,6 +78,29 @@ switch (ENVIRONMENT)
 
 /*
  *---------------------------------------------------------------
+ * BASELINE SECURITY HEADERS
+ *---------------------------------------------------------------
+ *
+ * Sent for every PHP-rendered response. A Content-Security-Policy is
+ * deliberately not included yet: the legacy views use inline scripts and
+ * styles, so a strict policy would break the site. HSTS is only meaningful
+ * (and only safe) over HTTPS.
+ */
+if (!headers_sent())
+{
+	header('X-Content-Type-Options: nosniff');
+	header('X-Frame-Options: SAMEORIGIN');
+	header('Referrer-Policy: strict-origin-when-cross-origin');
+	header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+	header('Cross-Origin-Opener-Policy: same-origin');
+	if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+	{
+		header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+	}
+}
+
+/*
+ *---------------------------------------------------------------
  * SYSTEM FOLDER NAME
  *---------------------------------------------------------------
  *

@@ -431,6 +431,40 @@ check('inventory records the Guzzle CVE risk', function () {
         && str_contains($s, 'CodeIgniter');
 });
 // -----------------------------------------------------------------------------
+// FOLLOW-UP: baseline HTTP security headers and crawler policy
+// -----------------------------------------------------------------------------
+check('baseline security headers are sent', function () {
+    $s = src('index.php');
+    foreach ([
+        'X-Content-Type-Options: nosniff',
+        'X-Frame-Options: SAMEORIGIN',
+        'Referrer-Policy: strict-origin-when-cross-origin',
+        'Permissions-Policy:',
+        'Cross-Origin-Opener-Policy: same-origin',
+        'Strict-Transport-Security',
+    ] as $header) {
+        if (!str_contains($s, $header)) {
+            return false;
+        }
+    }
+    return true;
+});
+check('HSTS is only sent over HTTPS', function () {
+    $s = src('index.php');
+    $pos = strpos($s, 'Strict-Transport-Security');
+    if ($pos === false) return false;
+    $before = substr($s, 0, $pos);
+    return str_contains($before, "!empty(\$_SERVER['HTTPS'])");
+});
+check('robots.txt keeps admin disallowed', fn() => preg_match(
+    '/^Disallow: \\/admin\\/$/m', src('robots.txt')) === 1);
+check('robots.txt disallows update and rest-api', function () {
+    $s = src('robots.txt');
+    return str_contains($s, 'Disallow: /update/')
+        && str_contains($s, 'Disallow: /rest-api/');
+});
+
+// -----------------------------------------------------------------------------
 // FOLLOW-UP: environment-driven configuration (no secrets in version control)
 // -----------------------------------------------------------------------------
 $repo_root = dirname(__DIR__, 2);

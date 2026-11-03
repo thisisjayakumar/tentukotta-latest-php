@@ -21,4 +21,18 @@ expect 'unauth admin delete_record' 403 '/admin/delete_record' -X POST
 expect 'unauth admin update_status' 403 '/admin/update_status' -X POST
 expect 'rest v130 config requires auth' 401 '/rest-api/v130/config'
 
+check_header() { # name header url
+    local name="$1" header="$2" url="$3"
+    if curl -sI "$STAGING_URL$url" | grep -qi "^${header}:"; then
+        echo "PASS  $name"
+    else
+        echo "FAIL  $name (missing $header)"
+        fail=1
+    fi
+}
+
+check_header 'X-Content-Type-Options header' 'X-Content-Type-Options' '/'
+check_header 'X-Frame-Options header' 'X-Frame-Options' '/'
+check_header 'Referrer-Policy header' 'Referrer-Policy' '/'
+
 exit "$fail"
