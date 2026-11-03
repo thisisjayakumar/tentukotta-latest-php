@@ -448,8 +448,8 @@ check('legacy API reads api_secret_key through one accessor', function () {
 });
 check('find_in_set inputs are cast to int', function () {
     $s = src('application/models/Legacy_api_model.php');
-    $total = preg_match_all('/find_in_set\(/', $s);
-    $cast  = preg_match_all('/find_in_set\("\."\(int\)/', $s);
+    $total = preg_match_all('/find_in_set\(/i', $s);
+    $cast  = preg_match_all('/find_in_set\("\.\(int\)/i', $s);
     return $total > 0 && $total === $cast;
 });
 

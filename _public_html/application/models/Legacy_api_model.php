@@ -636,9 +636,9 @@ class Legacy_api_model extends CI_Model {
                 $genres     =   explode(',', $genre_ids);
                 foreach ($genres as $genre_id):
                     if($i > 0):
-                        $this->db->or_where("FIND_IN_SET($genre_id,genre)>0");
+                        $this->db->or_where("FIND_IN_SET(".(int) $genre_id.",genre)>0");
                     else:
-                        $this->db->where("FIND_IN_SET($genre_id,genre)>0");
+                        $this->db->where("FIND_IN_SET(".(int) $genre_id.",genre)>0");
                     endif;
                     $i++;
                 endforeach;
@@ -648,9 +648,9 @@ class Legacy_api_model extends CI_Model {
                 $countries     =   explode(',', $country_ids);
                 foreach ($countries as $country):
                     if($i > 0):
-                        $this->db->or_where("FIND_IN_SET($country,country)>0");
+                        $this->db->or_where("FIND_IN_SET(".(int) $country.",country)>0");
                     else:
-                        $this->db->where("FIND_IN_SET($country,country)>0");
+                        $this->db->where("FIND_IN_SET(".(int) $country.",country)>0");
                     endif;
                     $i++;
                 endforeach;
@@ -941,9 +941,9 @@ class Legacy_api_model extends CI_Model {
                 $genres     =   explode(',', $genre_ids);
                 foreach ($genres as $genre_id):
                     if($i > 0):
-                        $this->db->or_where("FIND_IN_SET($genre_id,genre)>0");
+                        $this->db->or_where("FIND_IN_SET(".(int) $genre_id.",genre)>0");
                     else:
-                        $this->db->where("FIND_IN_SET($genre_id,genre)>0");
+                        $this->db->where("FIND_IN_SET(".(int) $genre_id.",genre)>0");
                     endif;
                     $i++;
                 endforeach;
@@ -953,9 +953,9 @@ class Legacy_api_model extends CI_Model {
                 $countries     =   explode(',', $country_ids);
                 foreach ($countries as $country):
                     if($i > 0):
-                        $this->db->or_where("FIND_IN_SET($country,country)>0");
+                        $this->db->or_where("FIND_IN_SET(".(int) $country.",country)>0");
                     else:
-                        $this->db->where("FIND_IN_SET($country,country)>0");
+                        $this->db->where("FIND_IN_SET(".(int) $country.",country)>0");
                     endif;
                     $i++;
                 endforeach;
