@@ -1361,21 +1361,51 @@ class Common_model extends CI_Model {
     }
 
     public function grab_image($file_url,$save_to){
+        $file_url = (string) $file_url;
+
+        // Refuse non-http(s), credentialed, loopback/private and unresolvable
+        // targets before curl is even initialised (SSRF).
+        if (!is_safe_remote_url($file_url)) {
+            log_message('error', 'grab_image: refused unsafe URL');
+            return false;
+        }
+
+        $dir = dirname((string) $save_to);
+        if (!is_dir($dir)) {
+            log_message('error', 'grab_image: destination directory does not exist');
+            return false;
+        }
+
+        $max_bytes = 10485760; // 10 MB
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $file_url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 140);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.16) Gecko/20110319 Firefox/3.6.16");
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2); 
-        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
+        curl_setopt_array($ch, array(
+            CURLOPT_URL              => $file_url,
+            CURLOPT_RETURNTRANSFER   => true,
+            CURLOPT_FOLLOWLOCATION   => true,
+            CURLOPT_MAXREDIRS        => 3,
+            CURLOPT_PROTOCOLS        => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_REDIR_PROTOCOLS  => CURLPROTO_HTTP | CURLPROTO_HTTPS,
+            CURLOPT_CONNECTTIMEOUT   => 10,
+            CURLOPT_TIMEOUT          => 30,
+            CURLOPT_MAXFILESIZE      => $max_bytes,
+            CURLOPT_SSL_VERIFYPEER   => true,
+            CURLOPT_SSL_VERIFYHOST   => 2,
+            CURLOPT_USERAGENT        => 'Mozilla/5.0 (compatible; Tentukotta/1.0)',
+            CURLOPT_HEADER           => false,
+        ));
+
         $output = curl_exec($ch);
-        $file = fopen($save_to, "w+");
-        fputs($file, $output);
-        fclose($file);
+        $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        curl_close($ch);
+
+        if ($output === false || $status < 200 || $status >= 300
+            || strlen($output) > $max_bytes || $output === '') {
+            log_message('error', 'grab_image: download failed or was rejected');
+            return false;
+        }
+
+        return file_put_contents($save_to, $output) !== false;
     }
     function get_extension($file) {
      $extension = explode(".", $file);

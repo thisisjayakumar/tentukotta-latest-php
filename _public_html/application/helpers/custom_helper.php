@@ -93,6 +93,95 @@ if ( ! function_exists('e')):
 endif;
 
 /**
+ * True when an IP address is loopback, private, link-local, CGNAT or
+ * otherwise reserved. Unparseable input is treated as unsafe.
+ */
+if ( ! function_exists('is_private_ip')):
+	function is_private_ip(string $ip): bool
+	{
+		if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+			return true;
+		}
+
+		if (filter_var($ip, FILTER_VALIDATE_IP,
+			FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+			return true;
+		}
+
+		// Carrier-grade NAT (100.64.0.0/10) is not covered by the filter flags.
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+			$long = ip2long($ip);
+			$cgnat = ip2long('100.64.0.0');
+			if ($long !== false && $cgnat !== false && ($long & 0xFFC00000) === ($cgnat & 0xFFC00000)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+endif;
+
+/**
+ * True when a URL is safe to fetch server-side.
+ *
+ * Only http/https, no embedded credentials, no control characters, no
+ * numeric/hex host tricks, and every resolved address must be public.
+ * A resolver may be injected for tests; production uses DNS.
+ */
+if ( ! function_exists('is_safe_remote_url')):
+	function is_safe_remote_url(string $url, ?callable $resolver = null): bool
+	{
+		if ($url === '' || preg_match('/[\x00-\x20\x7F]/', $url) === 1) {
+			return false;
+		}
+
+		$parts = parse_url($url);
+		if (!is_array($parts) || empty($parts['scheme']) || empty($parts['host'])) {
+			return false;
+		}
+
+		if (!in_array(strtolower($parts['scheme']), array('http', 'https'), true)) {
+			return false;
+		}
+
+		if (isset($parts['user']) || isset($parts['pass'])) {
+			return false;
+		}
+
+		$host = strtolower(trim($parts['host'], '[]'));
+		if ($host === '') {
+			return false;
+		}
+
+		if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
+			return !is_private_ip($host);
+		}
+
+		// Reject decimal/octal/hex IPv4 encodings that curl may still resolve.
+		if (preg_match('/^(0x[0-9a-f]+|[0-9]+)$/i', $host) === 1) {
+			return false;
+		}
+
+		if (preg_match('/^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/', $host) !== 1) {
+			return false;
+		}
+
+		$addresses = $resolver !== null ? $resolver($host) : @gethostbynamel($host);
+		if (!is_array($addresses) || $addresses === array()) {
+			return false;
+		}
+
+		foreach ($addresses as $address) {
+			if (!is_string($address) || is_private_ip($address)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+endif;
+
+/**
  * Validate and store an uploaded image safely.
  *
  * - rejects non-uploads, oversize files and non-image content (getimagesize)

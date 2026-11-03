@@ -431,6 +431,24 @@ check('inventory records the Guzzle CVE risk', function () {
         && str_contains($s, 'CodeIgniter');
 });
 // -----------------------------------------------------------------------------
+// FOLLOW-UP: SSRF-safe remote fetching
+// -----------------------------------------------------------------------------
+check('SSRF helpers are defined', function () {
+    $s = src('application/helpers/custom_helper.php');
+    return str_contains($s, 'function is_private_ip(')
+        && str_contains($s, 'function is_safe_remote_url(');
+});
+check('grab_image refuses unsafe URLs', fn() => has(
+    'application/models/Common_model.php', 'is_safe_remote_url('));
+check('grab_image verifies TLS and restricts protocols', function () {
+    $s = src('application/models/Common_model.php');
+    return str_contains($s, 'CURLOPT_SSL_VERIFYPEER')
+        && str_contains($s, 'CURLOPT_PROTOCOLS')
+        && str_contains($s, 'CURLOPT_REDIR_PROTOCOLS')
+        && str_contains($s, 'CURLOPT_MAXREDIRS');
+});
+
+// -----------------------------------------------------------------------------
 // FOLLOW-UP: legacy API key hardening
 // -----------------------------------------------------------------------------
 check('legacy API key comparison is timing-safe', function () {
