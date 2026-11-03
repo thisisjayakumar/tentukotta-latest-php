@@ -17,6 +17,7 @@
  
 
 require_once(APPPATH . 'libraries/Password.php');
+require_once(APPPATH . 'libraries/Api_key.php');
 
 class Legacy_api_model extends CI_Model {
     public  $default_limit  =   18;
@@ -35,12 +36,11 @@ class Legacy_api_model extends CI_Model {
     }
 
     public function check_mobile_apps_api_secret_key($api_secret_key=''){
-        $result                         =   FALSE;
-        $mobile_apps_api_secret_key     =   $this->db->get_where('config' , array('title'=>'mobile_apps_api_secret_key'))->row()->value;
-        if($mobile_apps_api_secret_key == $api_secret_key):
-            $result     =  TRUE;
+        $row = $this->db->get_where('config' , array('title'=>'mobile_apps_api_secret_key'))->row();
+        if (!$row || !isset($row->value)):
+            return FALSE;
         endif;
-        return $result;
+        return Api_key::verify((string) $row->value, $api_secret_key);
     }
 
     public function get_home_content(){
@@ -246,7 +246,7 @@ class Legacy_api_model extends CI_Model {
         else:
             $this->db->limit($this->default_limit);
         endif;
-        $this->db->where("find_in_set(".$genre_id.",genre) >",0);
+        $this->db->where("find_in_set(".(int) $genre_id.",genre) >",0);
         //$this->db->where('genere_id', $genere_id);
         $this->db->where('publication', '1');
         //$this->db->where('is_tvseries !=', '1');
@@ -415,7 +415,7 @@ class Legacy_api_model extends CI_Model {
         else:
             $this->db->limit($this->default_limit);
         endif;
-        $this->db->where("find_in_set(".$genre_id.",genre) >",0);
+        $this->db->where("find_in_set(".(int) $genre_id.",genre) >",0);
         //$this->db->where('genere_id', $genere_id);
         $this->db->where('publication', '1');
         //$this->db->where('is_tvseries !=', '1');
@@ -452,7 +452,7 @@ class Legacy_api_model extends CI_Model {
         else:
             $this->db->limit($this->default_limit);
         endif;
-        $this->db->where("find_in_set(".$country_id.",country) >",0);
+        $this->db->where("find_in_set(".(int) $country_id.",country) >",0);
         //$this->db->where('genere_id', $genere_id);
         $this->db->where('publication', '1');
         $this->db->where('is_tvseries !=', '1');
@@ -763,7 +763,7 @@ class Legacy_api_model extends CI_Model {
         else:
             $this->db->limit($this->default_limit);
         endif;
-        $this->db->where("find_in_set(".$genre_id.",genre) >",0);
+        $this->db->where("find_in_set(".(int) $genre_id.",genre) >",0);
         //$this->db->where('genere_id', $genere_id);
         $this->db->where('publication', '1');
         $this->db->where('is_tvseries', '1');
@@ -797,7 +797,7 @@ class Legacy_api_model extends CI_Model {
         else:
             $this->db->limit($this->default_limit);
         endif;
-        $this->db->where("find_in_set(".$country_id.",country) >",0);
+        $this->db->where("find_in_set(".(int) $country_id.",country) >",0);
         //$this->db->where('genere_id', $genere_id);
         $this->db->where('publication', '1');
         $this->db->where('is_tvseries', '1');
@@ -1903,7 +1903,7 @@ class Legacy_api_model extends CI_Model {
 
     public function movie_found_by_genre_id($genre_id=''){
         $result = false;
-        $this->db->where("find_in_set(".$genre_id.",genre) >",0);
+        $this->db->where("find_in_set(".(int) $genre_id.",genre) >",0);
         $this->db->where('publication', '1');
         $query = $this->db->get('videos');
         if($query->num_rows() > 0):
@@ -1920,7 +1920,7 @@ class Legacy_api_model extends CI_Model {
         else:
             $this->db->limit($this->default_limit);
         endif;
-        $this->db->where("find_in_set(".$genre_id.",genre) >",0);
+        $this->db->where("find_in_set(".(int) $genre_id.",genre) >",0);
         //$this->db->where('genere_id', $genere_id);
         $this->db->where('publication', '1');
         //$this->db->where('is_tvseries !=', '1');

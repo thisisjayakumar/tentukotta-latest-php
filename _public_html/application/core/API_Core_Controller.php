@@ -16,6 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * The comparison uses hash_equals() to avoid timing leaks.
  */
 require_once(APPPATH . '/libraries/RestController.php');
+require_once(APPPATH . '/libraries/Api_key.php');
 
 use chriskacerguis\RestServer\RestController;
 
@@ -41,7 +42,7 @@ class API_Core_Controller extends RestController
 
         $expected = $this->_expected_api_key();
 
-        if ($expected === '' || !is_string($supplied) || !hash_equals($expected, $supplied)) {
+        if (!Api_key::verify($expected, $supplied)) {
             $this->response([
                 'status'  => 'error',
                 'message' => 'Unauthorized',

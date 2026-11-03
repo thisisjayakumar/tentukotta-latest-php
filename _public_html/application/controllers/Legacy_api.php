@@ -42,10 +42,28 @@ class Legacy_api extends CI_Controller{
         echo "This is API";
     }
 
+    /**
+     * Shared-secret accessor for every legacy endpoint.
+     *
+     * The X-API-KEY header is preferred; the historical api_secret_key
+     * GET/POST parameter keeps existing mobile clients working.
+     */
+    protected function _api_key(): string
+    {
+        $header = $this->input->get_request_header('X-API-KEY', false);
+        if (is_string($header) && $header !== '') {
+            return $header;
+        }
+
+        $param = $this->input->get_post('api_secret_key', false);
+
+        return is_string($param) ? $param : '';
+    }
+
     //test api function
     public function test() {
         $response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -67,7 +85,7 @@ class Legacy_api extends CI_Controller{
     // get slider function
     public function get_slider() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -102,7 +120,7 @@ class Legacy_api extends CI_Controller{
 
     public function get_home_content() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -127,7 +145,7 @@ class Legacy_api extends CI_Controller{
     // get latest movies function
     public function get_latest_movies() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -150,7 +168,7 @@ class Legacy_api extends CI_Controller{
     // get movies function
     public function get_movies() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -173,7 +191,7 @@ class Legacy_api extends CI_Controller{
     // get features genre  function
     public function get_features_genre_and_movie() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -194,7 +212,7 @@ class Legacy_api extends CI_Controller{
     // get movies  by genre ID function
     public function get_movie_by_genre_id() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -228,7 +246,7 @@ class Legacy_api extends CI_Controller{
     // get movies  by country ID function
     public function get_movie_by_country_id() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -272,7 +290,7 @@ class Legacy_api extends CI_Controller{
     // get latest movies function
     public function get_latest_tvseries() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -295,7 +313,7 @@ class Legacy_api extends CI_Controller{
     // get movies function
     public function get_tvseries() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -318,7 +336,7 @@ class Legacy_api extends CI_Controller{
     // get movies  by genre ID function
     public function get_tvseries_by_genre_id() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -352,7 +370,7 @@ class Legacy_api extends CI_Controller{
     // get movies  by country ID function
     public function get_tvseries_by_country_id() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -391,7 +409,7 @@ class Legacy_api extends CI_Controller{
     // get all country function
     public function get_all_country() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -413,7 +431,7 @@ class Legacy_api extends CI_Controller{
     // get all genre  function
     public function get_all_genre() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -434,7 +452,7 @@ class Legacy_api extends CI_Controller{
     // get featured tv channel function
     public function get_featured_tv_channel() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -457,7 +475,7 @@ class Legacy_api extends CI_Controller{
     // get featured tv channel function
     public function get_all_tv_channel() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -480,7 +498,7 @@ class Legacy_api extends CI_Controller{
     // get featured tv channel function
     public function get_tv_channel() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -503,7 +521,7 @@ class Legacy_api extends CI_Controller{
     // get featured tv channel function
     public function get_all_tv_channel_by_category() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -526,7 +544,7 @@ class Legacy_api extends CI_Controller{
     // get movies  by country ID function
     public function get_tv_channel_by_category_id() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -561,7 +579,7 @@ class Legacy_api extends CI_Controller{
     // get single movie,tvseries & live tv details
     public function get_single_details() {
         $response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         $type                       =   $this->input->get('type');
         $id                         =   $this->input->get('id');
         // check api secret is sent
@@ -625,7 +643,7 @@ class Legacy_api extends CI_Controller{
     // login function
     public function login() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -687,7 +705,7 @@ class Legacy_api extends CI_Controller{
     // signup function
     public function signup() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -738,7 +756,7 @@ class Legacy_api extends CI_Controller{
     // get_user_details_by_user_id function
     public function get_user_details_by_user_id() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -787,7 +805,7 @@ class Legacy_api extends CI_Controller{
     // get_user_details_by_email function
     public function get_user_details_by_email() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -833,7 +851,7 @@ class Legacy_api extends CI_Controller{
     // update profile function
     public function update_profile() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->post('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -894,7 +912,7 @@ class Legacy_api extends CI_Controller{
     // deactivate account function
     public function deactivate_account() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->post('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -935,7 +953,7 @@ class Legacy_api extends CI_Controller{
     // get search function
     public function search() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -966,7 +984,7 @@ class Legacy_api extends CI_Controller{
     // get app config function
     public function get_config() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1030,7 +1048,7 @@ class Legacy_api extends CI_Controller{
     // get favorite function
     public function get_favorite() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1059,7 +1077,7 @@ class Legacy_api extends CI_Controller{
     // get add_favorite function
     public function add_favorite() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1114,7 +1132,7 @@ class Legacy_api extends CI_Controller{
     // get add_favorite function
     public function verify_favorite_list() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1155,7 +1173,7 @@ class Legacy_api extends CI_Controller{
     // get remove_favorite function
     public function remove_favorite() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1204,7 +1222,7 @@ class Legacy_api extends CI_Controller{
     // signup function
     public function password_reset() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1243,7 +1261,7 @@ class Legacy_api extends CI_Controller{
     // get single movie,tvseries & live tv details
     public function get_all_comments() {
         $response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         $type                       =   $this->input->get('type');
         $id                         =   $this->input->get('id');
         // check api secret is sent
@@ -1278,7 +1296,7 @@ class Legacy_api extends CI_Controller{
     // add_comments function
     public function add_comments() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1333,7 +1351,7 @@ class Legacy_api extends CI_Controller{
     // add_comments function
     public function add_replay() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1388,7 +1406,7 @@ class Legacy_api extends CI_Controller{
     // get single all replay
     public function get_all_replay() {
         $response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         $id                         =   $this->input->get('id');
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
@@ -1422,7 +1440,7 @@ class Legacy_api extends CI_Controller{
     // get preroll ads function
     public function get_preroll_ads_details() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1443,7 +1461,7 @@ class Legacy_api extends CI_Controller{
     // get admob ads function
     public function get_admob_ads_details() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1468,7 +1486,7 @@ class Legacy_api extends CI_Controller{
     // get admob ads function
     public function get_ads() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1490,7 +1508,7 @@ class Legacy_api extends CI_Controller{
     // get admob ads function
     public function get_user_info_by_code() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1536,7 +1554,7 @@ class Legacy_api extends CI_Controller{
     // get admob ads function
     public function get_tv_connection_code() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1570,7 +1588,7 @@ class Legacy_api extends CI_Controller{
    // get check_validated_subscription_plan
     public function check_user_subscription_status() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1600,7 +1618,7 @@ class Legacy_api extends CI_Controller{
     // get check_validated_subscription_plan
     public function get_subscription_history() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1628,7 +1646,7 @@ class Legacy_api extends CI_Controller{
     // get check_validated_subscription_plan
     public function get_payment_config() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1649,7 +1667,7 @@ class Legacy_api extends CI_Controller{
     // get check_validated_subscription_plan
     public function store_payment_info() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->post('api_secret_key',true);
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1722,7 +1740,7 @@ class Legacy_api extends CI_Controller{
     // get check_validated_subscription_plan
     public function get_all_package() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1743,7 +1761,7 @@ class Legacy_api extends CI_Controller{
      // get cancel subscription
     public function cancel_subscription() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->get('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key
@@ -1784,7 +1802,7 @@ class Legacy_api extends CI_Controller{
     // login function
     public function firebase_auth() {
         //$response                   =   array();
-        $api_secret_key             =   $this->input->post('api_secret_key');
+        $api_secret_key             =   $this->_api_key();
         // check api secret is sent
         if(!empty($api_secret_key) && $api_secret_key !='' && $api_secret_key !=NULL):
             // verify api secret key

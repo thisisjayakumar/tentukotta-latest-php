@@ -431,6 +431,29 @@ check('inventory records the Guzzle CVE risk', function () {
         && str_contains($s, 'CodeIgniter');
 });
 // -----------------------------------------------------------------------------
+// FOLLOW-UP: legacy API key hardening
+// -----------------------------------------------------------------------------
+check('legacy API key comparison is timing-safe', function () {
+    $s = src('application/models/Legacy_api_model.php');
+    return str_contains($s, 'Api_key::verify')
+        && preg_match('/\$mobile_apps_api_secret_key\s*==\s*\$api_secret_key/', $s) !== 1;
+});
+check('legacy API accepts the X-API-KEY header', function () {
+    $s = src('application/controllers/Legacy_api.php');
+    return str_contains($s, 'X-API-KEY') && str_contains($s, 'function _api_key');
+});
+check('legacy API reads api_secret_key through one accessor', function () {
+    $s = src('application/controllers/Legacy_api.php');
+    return preg_match('/input->(get|post)\(\s*[\'"]api_secret_key[\'"]/', $s) !== 1;
+});
+check('find_in_set inputs are cast to int', function () {
+    $s = src('application/models/Legacy_api_model.php');
+    $total = preg_match_all('/find_in_set\(/', $s);
+    $cast  = preg_match_all('/find_in_set\("\."\(int\)/', $s);
+    return $total > 0 && $total === $cast;
+});
+
+// -----------------------------------------------------------------------------
 // FOLLOW-UP: web updater is opt-in and archive-validated
 // -----------------------------------------------------------------------------
 check('web updater is disabled unless opted in', fn() => has(
