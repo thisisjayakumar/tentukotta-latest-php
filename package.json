@@ -1,0 +1,10 @@
+{
+  "name": "tentukotta-security-tests",
+  "private": true,
+  "scripts": {
+    "test:browser": "playwright test --config=tests/browser/playwright.config.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}

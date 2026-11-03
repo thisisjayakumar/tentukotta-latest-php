@@ -10,3 +10,8 @@ _public_html/application/cache/*
 .env
 *.sql
 _public_html.zip
+
+# Test tooling and artefacts
+node_modules/
+test-results/
+playwright-report/
