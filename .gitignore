@@ -1,17 +1,48 @@
+# ============================
+# tentukotta monorepo
+# ============================
+
+# ---- Runtime artifacts (CI3) ----
+_public_html/application/cache/*
+!_public_html/application/cache/index.html
+!_public_html/application/cache/.gitkeep
+_public_html/application/logs/*
+!_public_html/application/logs/index.html
+!_public_html/application/logs/.gitkeep
+
+# ---- Database backups / dumps ----
+_public_html/db_backup/
+*.sql
+!docs/migrations/*.sql
+
+# ---- User media (never commit content) ----
 _public_html/uploads/*
 !_public_html/uploads/index.html
 !_public_html/uploads/.htaccess
 !_public_html/uploads/web.config
-_public_html/db_backup/
-_public_html/application/logs/*
-!_public_html/application/logs/index.html
-_public_html/application/cache/*
-!_public_html/application/cache/index.html
-.env
-*.sql
-_public_html.zip
 
-# Test tooling and artefacts
+# ---- Environment / secrets ----
+.env
+.env.local
+.env.*.local
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+*.log
+
+# ---- Build / test artefacts ----
 node_modules/
 test-results/
 playwright-report/
+builds/
+*.zip
+*.bak
+*.old
+
+# ---- Stray local files ----
+a.out
+secure-archive/
+
+# ---- Legacy nested repo (must not be recreated) ----
+_public_html/.git/
