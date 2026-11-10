@@ -531,7 +531,7 @@ check('index.php loads the env loader', fn() => has('index.php', 'config/env.php
 check('database credentials come from env', function () {
     $s = src('application/config/database.php');
     return str_contains($s, "env('DB_PASSWORD'")
-        && !str_contains($s, '<redacted>');
+        && !preg_match("/'password'\\s*=>\\s*'[^']+'/", $s);
 });
 check('database host and name come from env', function () {
     $s = src('application/config/database.php');
@@ -541,7 +541,7 @@ check('database host and name come from env', function () {
 check('encryption key comes from env', function () {
     $s = src('application/config/config.php');
     return str_contains($s, "env('ENCRYPTION_KEY'")
-        && !str_contains($s, "'<redacted>'");
+        && !preg_match("/'encryption_key'\\s*=>\\s*'[0-9a-f]{16,}'/i", $s);
 });
 check('base URL comes from env', fn() => has('application/config/config.php', "env('BASE_URL'"));
 check('db_debug is explicitly FALSE', fn() => preg_match(

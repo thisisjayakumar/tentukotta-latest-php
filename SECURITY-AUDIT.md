@@ -224,7 +224,7 @@ $this->db->insert('subscription', $data);   // no gateway callback validation
 'hostname' => 'localhost',
 'username' => 'u473259675_pp_stream_1',
 'password' => '<redacted>',
-'database' => 'u473259675_movies_db',
+'database' => '<redacted>',
 ```
 
 **Impact.** Credential reuse across environments, exposure via source leakage/backups, and a trivially brute-forceable session/encryption key. The same credentials are also present in the public SQL dump's deployment context.
