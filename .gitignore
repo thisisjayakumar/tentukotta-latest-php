@@ -3,8 +3,7 @@
 # ============================
 
 # ---- Framework core (system/) -------------------
-# Keep if you want to vendor the framework in-repo.
-system/
+# Keep system/ tracked (framework core). Remove this section if vendoring via Composer.
 
 # ---- Generated / runtime artifacts ----------------
 application/cache/*
