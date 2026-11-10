@@ -1,0 +1,36 @@
+# ============================
+# CodeIgniter 3 Project
+# ============================
+
+# ---- Framework core (system/) -------------------
+# Keep if you want to vendor the framework in-repo.
+system/
+
+# ---- Generated / runtime artifacts ----------------
+application/cache/*
+application/logs/*
+!.gitkeep
+
+# ---- DB backups (move to secure backup location) ----
+db_backup/
+*.sql
+*.bak
+*.old
+
+# ---- Upload temp / cache ---------------------------
+uploads/temp/
+uploads/video_thumb/
+uploads/videos/
+uploads/sliders/
+
+# ---- OS & editor junk ------------------------------
+.DS_Store
+Thumbs.db
+
+# ---- Environment / secrets (kept at repo root) ----
+.env
+.env.local
+.env.*.local
+
+# ---- IDE & misc ------------------------------------
+*.log
