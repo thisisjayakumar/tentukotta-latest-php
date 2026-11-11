@@ -53,7 +53,10 @@ if (ENVIRONMENT === 'pre_installation') {
 switch (ENVIRONMENT)
 {
 	case 'development':
-		error_reporting(-1);
+		// CI3 core/libraries use dynamic properties deprecated in PHP 8.2+.
+		// Keep real errors visible, but suppress deprecation output so it
+		// doesn't break headers/sessions (especially on PHP 8.5).
+		error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 		ini_set('display_errors', 1);
 	break;
 
