@@ -390,8 +390,20 @@ class Subscription extends Home_Core_Controller {
 
             $stripe_response  = $this->stripegateway->checkout($stripe_data);
 
-            if(isset($stripe_response->paid) && $stripe_response->paid):
-                $data['transaction_id']             = $stripe_response->balance_transaction;
+            // Never grant on a client-supplied status. Re-fetch the charge from
+            // Stripe and verify paid/amount/currency before inserting anything.
+            $charge_id = (is_object($stripe_response) && !empty($stripe_response->id))
+                ? (string) $stripe_response->id
+                : '';
+            $verified  = $charge_id !== ''
+                && $this->subscription_model->verify_payment(
+                    'stripe',
+                    array('payment_info' => $charge_id),
+                    (float) $price
+                );
+
+            if ($verified):
+                $data['transaction_id']             = $charge_id;
                 $data['payment_info']               = json_encode($stripe_response);
                 $data['plan_id']                    =   $plan_id;
                 $data['user_id']                    =   $this->session->userdata('user_id');
@@ -408,7 +420,9 @@ class Subscription extends Home_Core_Controller {
                 $this->db->insert('subscription' , $data);
                 $this->session->set_flashdata('success', 'Subscription purchase successfully!');
             else:
-                $this->session->set_flashdata('error', 'Transaction fail to process.</br>Reason:'.$this->stripegateway->checkout($stripe_data));
+                log_message('error', 'stripe: charge verification failed for user '
+                    .$this->session->userdata('user_id'));
+                $this->session->set_flashdata('error', 'Transaction could not be verified. Please contact support.');
             endif;
             redirect(base_url('my-account/subscription') , 'refresh');
         }      

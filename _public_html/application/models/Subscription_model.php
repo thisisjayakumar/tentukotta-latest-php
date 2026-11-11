@@ -351,8 +351,18 @@ class Subscription_model extends CI_Model {
         $intent_id = is_array($info) ? ($info['id'] ?? '') : $info;
         $intent_id = is_string($intent_id) ? trim($intent_id) : '';
 
-        if ($intent_id === '' || strpos($intent_id, 'pi_') !== 0):
-            log_message('error', 'verify_payment(stripe): missing or invalid PaymentIntent id');
+        if ($intent_id === ''):
+            log_message('error', 'verify_payment(stripe): missing charge/PaymentIntent id');
+            return FALSE;
+        endif;
+
+        // Legacy checkout creates a Charge; the current flow creates a PaymentIntent.
+        if (strpos($intent_id, 'ch_') === 0):
+            return $this->_verify_stripe_charge($intent_id, $expectedAmount);
+        endif;
+
+        if (strpos($intent_id, 'pi_') !== 0):
+            log_message('error', 'verify_payment(stripe): invalid charge/PaymentIntent id');
             return FALSE;
         endif;
 
@@ -387,6 +397,48 @@ class Subscription_model extends CI_Model {
         if (!empty($currency) && !empty($intent->currency)
             && strcasecmp((string) $intent->currency, (string) $currency) !== 0):
             log_message('error', 'verify_payment(stripe): currency mismatch');
+            return FALSE;
+        endif;
+
+        return TRUE;
+    }
+
+    /**
+     * Legacy Stripe Charge: retrieve it from Stripe and require a captured,
+     * fully paid charge for exactly the expected amount and currency.
+     */
+    private function _verify_stripe_charge($charge_id, $expectedAmount){
+        $secret = ovoo_config('stripe_secret_key');
+        if ($secret === '' || $secret === NULL):
+            log_message('error', 'verify_payment(stripe-charge): gateway secret not configured');
+            return FALSE;
+        endif;
+
+        require_once(APPPATH . 'libraries/stripe/init.php');
+
+        try {
+            \Stripe\Stripe::setApiKey($secret);
+            $charge = \Stripe\Charge::retrieve($charge_id);
+        } catch (\Exception $e) {
+            log_message('error', 'verify_payment(stripe-charge): retrieve failed: '.$e->getMessage());
+            return FALSE;
+        }
+
+        if (!isset($charge->paid) || $charge->paid !== TRUE):
+            log_message('error', 'verify_payment(stripe-charge): charge is not paid');
+            return FALSE;
+        endif;
+
+        $expected_cents = (int) round($expectedAmount * 100);
+        if ((int) $charge->amount !== $expected_cents):
+            log_message('error', 'verify_payment(stripe-charge): amount mismatch');
+            return FALSE;
+        endif;
+
+        $currency = $this->db->get_where('config', array('title' => 'currency'))->row()->value;
+        if (!empty($currency) && !empty($charge->currency)
+            && strcasecmp((string) $charge->currency, (string) $currency) !== 0):
+            log_message('error', 'verify_payment(stripe-charge): currency mismatch');
             return FALSE;
         endif;
 
