@@ -40,6 +40,6 @@ class Language extends CI_Controller{
 			$this->session->unset_userdata('active_language_id');
 			$this->session->set_userdata('active_language_id',$language_id);
 		endif;
-		redirect($this->agent->referrer());
+		safe_redirect($this->agent->referrer());
 	}	
 }

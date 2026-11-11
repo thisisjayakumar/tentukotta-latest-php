@@ -458,7 +458,7 @@ class Home extends Home_Core_Controller {
         $this->form_validation->set_rules('message', 'Message', 'trim');
         if ($this->form_validation->run() == FALSE):
             $this->session->set_flashdata('error', json_encode(validation_errors()));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         else:
             $data['name']           =   trim($this->input->post('name'));
             $data['email']          =   trim($this->input->post('email'));
@@ -466,7 +466,7 @@ class Home extends Home_Core_Controller {
             $data['message']        =   trim($this->input->post('message'));
             $this->db->insert('request',$data);
             $this->session->set_flashdata('success', 'Request sent successfully.');
-        	redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
     }
 

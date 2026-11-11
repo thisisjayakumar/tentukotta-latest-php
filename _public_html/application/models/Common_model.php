@@ -1526,7 +1526,7 @@ class Common_model extends CI_Model {
         $characters = array_merge(range('a','z'), range('0','9'));
         $max = count($characters) - 1;
         for ($i = 0; $i < $length; $i++) {
-            $rand = mt_rand(0, $max);
+            $rand = random_int(0, $max);
             $str .= $characters[$rand];
         }
         return $str;

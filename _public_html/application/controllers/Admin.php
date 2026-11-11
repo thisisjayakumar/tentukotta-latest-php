@@ -67,7 +67,7 @@ class Admin extends Admin_Core_Controller {
                 safe_image_upload($_FILES['image'], 'uploads/country/'.$insert_id.'.png');
             }
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
             
         if ($param1 == 'update') {
@@ -89,7 +89,7 @@ class Admin extends Admin_Core_Controller {
             }
 
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }        
         $data['page_name']          = 'country_manage';
         $data['page_title']         = trans('country_management');
@@ -124,7 +124,7 @@ class Admin extends Admin_Core_Controller {
                 safe_image_upload($_FILES['image'], 'uploads/genre/'.$insert_id.'.png');
             }
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
             
         if ($param1 == 'update') {
@@ -146,7 +146,7 @@ class Admin extends Admin_Core_Controller {
                 safe_image_upload($_FILES['image'], 'uploads/genre/'.$param2.'.png');
             }
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }        
         $data['page_name']          = 'genre_manage';
         $data['page_title']         = trans('genre_manage');
@@ -172,7 +172,7 @@ class Admin extends Admin_Core_Controller {
 
             $this->db->insert('language', $data);
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
         if ($param1 == 'update') {
@@ -185,7 +185,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('language_id', $param2);
             $this->db->update('language', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']          = 'langauge_manage';
         $data['page_title']         = trans('langauge_manage');
@@ -241,7 +241,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->update('config' , $data);
             }
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());          
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'slider_setting';
         $data['page_title']     = trans('slider_setting');
@@ -291,7 +291,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('slider', $data);
             
             $this->session->set_flashdata('success', 'Slider added successed');
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
            
         if ($param1 == 'update') {
@@ -327,7 +327,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('slider_id', $param2);
             $this->db->update('slider', $data);
             $this->session->set_flashdata('success', 'Slider update successed.');
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }        
         $data['page_name']      = 'slider_manage';
         $data['page_title']     = 'Slider Management';
@@ -573,7 +573,7 @@ class Admin extends Admin_Core_Controller {
             }
             $this->session->set_flashdata('success', trans('update_success'));
             redirect(base_url() . 'admin/videos_edit/'.$param2, 'refresh');
-            //redirect($this->agent->referrer());
+            //safe_redirect($this->agent->referrer());
         }
         // filter
         $title          = $this->input->get('title');
@@ -863,7 +863,7 @@ class Admin extends Admin_Core_Controller {
 
             $this->session->set_flashdata('success', trans('add_success'));
             redirect(base_url() . 'admin/tvseries_edit/'.$param2, 'refresh');
-            //redirect($this->agent->referrer());
+            //safe_redirect($this->agent->referrer());
         }
         // filter
         $title          = $this->input->get('title');
@@ -984,7 +984,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->update('episodes', $data);
             endfor;
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         elseif ($param1 == 'edit'):
             $data['param1']         = $param1;
             $data['param2']         = $param2;
@@ -1052,7 +1052,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->insert('episode_download_link',$data);
             $this->session->set_flashdata('success', 'Key create successed.');
         endif;
-        redirect($this->agent->referrer());    
+        safe_redirect($this->agent->referrer());
     }
 
 
@@ -1107,7 +1107,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->update('video_file', $data);
             endfor;
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         if ($param1 == 'edit'):
             $data['param1']         = $param1;
@@ -1238,7 +1238,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('video_type', $data_update);
 
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update') {
             demo_check();
@@ -1250,7 +1250,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('video_type_id', $param2);
             $this->db->update('video_type', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }      
         
             $data['page_name']              = 'video_type_manage';
@@ -1276,7 +1276,7 @@ class Admin extends Admin_Core_Controller {
             
             $this->db->insert('quality', $data);
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update') {
             demo_check();
@@ -1286,7 +1286,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('quality_id', $param2);
             $this->db->update('quality', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']                  = 'video_quality_manage';
         $data['page_title']                 = trans('video_quality_manage');
@@ -1388,7 +1388,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->insert('live_tv_url', $data2);
 
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         else if ($param1 == 'update') {
             demo_check();
@@ -1462,7 +1462,7 @@ class Admin extends Admin_Core_Controller {
 
 
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }else{
 
             $name           = $this->input->get('name');
@@ -1518,7 +1518,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->insert('live_tv_category', $data);
 
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update') {
             demo_check();
@@ -1528,7 +1528,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('live_tv_category_id', $param2);
             $this->db->update('live_tv_category', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         
         $data['page_name']                      = 'live_tv_category_manage';
@@ -1578,7 +1578,7 @@ class Admin extends Admin_Core_Controller {
                  $this->db->update('config' , $data);
              } 
              $this->session->set_flashdata('success', trans('update_success'));          
-             redirect($this->agent->referrer());
+             safe_redirect($this->agent->referrer());
         } 
 
         $data['page_name']      = 'live_tv_setting';
@@ -1601,7 +1601,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('comments_id', $param2);
             $this->db->update('comments', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }else if ($param1 == 'update_post') {
             demo_check();
             $data['comment']             = $this->input->post('comment');
@@ -1609,7 +1609,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('post_comments_id', $param2);
             $this->db->update('post_comments', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }else if($param1 == 'post_comments'){
             $this->session->unset_userdata('active_menu');
             $this->session->set_userdata('active_menu', '33');
@@ -1663,7 +1663,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());                       
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'comments_setting';
         $data['page_title']     = trans('comments_setting');
@@ -1735,7 +1735,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('page', $data);
 
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         else if ($param1 == 'update') {
             demo_check();
@@ -1763,7 +1763,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('page', $data);
 
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         else{
             if($param1 != '' && $param1!=NULL ){
@@ -1853,7 +1853,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('posts', $data);
             
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         else if ($param1 == 'update') {
             demo_check();
@@ -1887,7 +1887,7 @@ class Admin extends Admin_Core_Controller {
 
 
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         else{
             if($param1 != '' && $param1!=NULL ){
@@ -1936,7 +1936,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('post_category', $data_update);
 
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update') {
             demo_check();
@@ -1953,7 +1953,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('post_category_id', $param2);
             $this->db->update('post_category', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }  
         
             $data['page_name']          = 'post_category_manage';
@@ -1983,7 +1983,7 @@ class Admin extends Admin_Core_Controller {
             
             $this->db->insert('user', $data);
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update') {
             demo_check();
@@ -1999,7 +1999,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('user_id', $param2);
             $this->db->update('user', $data);
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }        
         $name           = $this->input->get('name');
         $search_string = '';
@@ -2042,7 +2042,7 @@ class Admin extends Admin_Core_Controller {
             $star_name                      = trim($this->input->post('star_name'));
             if($this->db->get_where('star',array('star_name'=>$star_name))->num_rows() > 0){
                 $this->session->set_flashdata('error', 'Star Already exist.');
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }else{
                 $data['star_name']              = $star_name;
                 $data['slug']                   = $this->common_model->get_seo_url($star_name);
@@ -2055,14 +2055,14 @@ class Admin extends Admin_Core_Controller {
                 }
             }
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update') {
             demo_check();
             $star_name                          = trim($this->input->post('star_name'));
             if($this->db->get_where('star',array('star_name'=>$star_name))->num_rows() > 1){
                 $this->session->set_flashdata('error', 'Duplicate Star exist.');
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }else{
                 $data['star_name']              = $star_name;
                 $data['slug']                   = $this->common_model->get_seo_url($star_name);
@@ -2074,7 +2074,7 @@ class Admin extends Admin_Core_Controller {
                     safe_image_upload($_FILES['photo'], 'uploads/star_image/'.$param2.'.jpg');
                 }
                 $this->session->set_flashdata('success', trans('update_success'));
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }            
         }
         $config = $this->common_model->pagination();
@@ -2145,7 +2145,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
              $this->session->set_flashdata('success', trans('setting_update_success'));           
-             redirect($this->agent->referrer());
+             safe_redirect($this->agent->referrer());
         } 
 
         $data['page_name']      = 'tv_series_setting';
@@ -2223,7 +2223,7 @@ class Admin extends Admin_Core_Controller {
 
 
             $this->session->set_flashdata('success', trans('setting_update_success'));           
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'android_setting';
         $data['page_title']     = trans('android_setting');
@@ -2445,7 +2445,7 @@ class Admin extends Admin_Core_Controller {
 
 
             $this->session->set_flashdata('success', trans('setting_update_success'));           
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'system_setting';
         $data['page_title']     = trans('system_setting');
@@ -2464,7 +2464,7 @@ class Admin extends Admin_Core_Controller {
              $this->db->where('title' , 'mobile_apps_api_secret_key');
              $this->db->update('config' , $data);
              $this->session->set_flashdata('success', 'Setting update successed.');           
-             redirect($this->agent->referrer());
+             safe_redirect($this->agent->referrer());
         }
         if($param1 == 'create_key'):
             demo_check();
@@ -2479,7 +2479,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->insert('keys',$data);
                 $this->session->set_flashdata('success', 'Key create successed.');
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         if($param1 == 'update_key'):
             demo_check();
@@ -2501,7 +2501,7 @@ class Admin extends Admin_Core_Controller {
             else:
                 $this->session->set_flashdata('error', 'ID Is required.'); 
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
 
@@ -2518,7 +2518,7 @@ class Admin extends Admin_Core_Controller {
             else:
                 $this->session->set_flashdata('error', 'ID Is required.'); 
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
         if($param1 == 'create_authentication'):
@@ -2532,7 +2532,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->insert('rest_logins',$data);
                 $this->session->set_flashdata('success', 'Authentication create successed.');
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
         if($param1 == 'update_authentication'):
@@ -2564,7 +2564,7 @@ class Admin extends Admin_Core_Controller {
             else:
                 $this->session->set_flashdata('error', 'ID Is required.'); 
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
         if($param1 == 'delete_authentication'):
@@ -2580,7 +2580,7 @@ class Admin extends Admin_Core_Controller {
             else:
                 $this->session->set_flashdata('error', 'ID Is required.'); 
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
         $data['page_name']      = 'api_setting';
@@ -2672,7 +2672,7 @@ class Admin extends Admin_Core_Controller {
             if (isset($_FILES['landing_page_image']['name']) && !empty($_FILES['landing_page_image']['name'])):
                 $config['upload_path']          = './uploads/';
                 $config['allowed_types']        = 'jpg|png';
-                $config['max_size']             = 0;
+                $config['max_size']             = 5120;
                 $config['file_name']            = 'landing_bg_'.uniqid();
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -2693,7 +2693,7 @@ class Admin extends Admin_Core_Controller {
             if (isset($_FILES['bg_image']['name']) && !empty($_FILES['bg_image']['name'])):
                 $config['upload_path']          = './uploads/bg/';
                 $config['allowed_types']        = 'jpg|png';
-                $config['max_size']             = 0;
+                $config['max_size']             = 5120;
                 $config['file_name']            = 'bg_'.uniqid();
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -2712,7 +2712,7 @@ class Admin extends Admin_Core_Controller {
             endif;
 
             $this->session->set_flashdata('success', trans('setting_update_success'));           
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
         $data['homepage_sections']      = $this->db->get('homepage_sections')->result_array();
@@ -2746,7 +2746,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->insert('homepage_sections', $data);
             
             $this->session->set_flashdata('success', trans('add_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
             
         if ($param1 == 'update') {
@@ -2766,7 +2766,7 @@ class Admin extends Admin_Core_Controller {
 
             
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }      
         redirect(base_url() . 'admin/theme_options', 'refresh');  
     }
@@ -2780,7 +2780,7 @@ class Admin extends Admin_Core_Controller {
         $this->db->update('config' , $data);
 
         $this->session->set_flashdata('success', trans('setting_update_success'));           
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     function regenerate_cron_key(){
         if ($this->session->userdata('admin_is_login') != 1)
@@ -2921,7 +2921,7 @@ class Admin extends Admin_Core_Controller {
              $this->db->update('config' , $data);
 
              $this->session->set_flashdata('success', trans('setting_update_success'));            
-             redirect($this->agent->referrer());
+             safe_redirect($this->agent->referrer());
         }
             $data['page_name']      = 'email_setting';
             $data['page_title']     = trans('email_setting');
@@ -2987,7 +2987,7 @@ class Admin extends Admin_Core_Controller {
                 endif;
             endif;
             
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
             $data['page_name']      = 'logo_setting';
@@ -3036,7 +3036,7 @@ class Admin extends Admin_Core_Controller {
 
 
             $this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
             $data['page_name']      = 'footer_setting';
@@ -3154,7 +3154,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
             $data['page_name']      = 'seo_setting';
@@ -3247,7 +3247,7 @@ class Admin extends Admin_Core_Controller {
             
 
             $this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'copyright_privacy';
         $data['page_title']     = trans('copyright_privacy');
@@ -3289,7 +3289,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'push_notification_setting';
         $data['page_title']     = trans('push_notification_setting');
@@ -3314,7 +3314,7 @@ class Admin extends Admin_Core_Controller {
             $this->load->model('notify_model');
             $this->notify_model->send_web_notification($data);
             $this->session->set_flashdata('success', trans('notification_send_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']              = 'send_web_notification';
         $data['page_title']             = trans('send_web_notification');
@@ -3349,7 +3349,7 @@ class Admin extends Admin_Core_Controller {
             else:
                 $this->session->set_flashdata('error', 'Invalid movie ID');
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         $data['page_name']      = 'send_movie_tvseries_notification';
         $data['page_title']     = trans('send_movie_tvseries_notification');
@@ -3384,7 +3384,7 @@ class Admin extends Admin_Core_Controller {
             else:
                 $this->session->set_flashdata('error', trans('invalid_movie_id'));
             endif;
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         $data['page_name']      = 'send_live_tv_notification';
         $data['page_title']     = trans('send_live_tv_notification');
@@ -3418,9 +3418,9 @@ class Admin extends Admin_Core_Controller {
             $this->session->set_flashdata('error', trans('invalid_movie_id'));
         endif;
         if($param2 == 'tv'):
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         else:
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
     }
 
@@ -3457,7 +3457,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'update_google') {
             demo_check();
@@ -3487,7 +3487,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'social_login_setting';
         $data['page_title']     = trans('social_login_setting');
@@ -3518,7 +3518,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('update_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data['page_name']      = 'tmdb_setting';
         $data['page_title']     = trans('tmdb_setting');
@@ -3573,7 +3573,7 @@ class Admin extends Admin_Core_Controller {
                 }
             }
 			$this->session->set_flashdata('success', trans('setting_update_success')); 
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if($param1=="edit"){
             $data['ads_info']    = $this->common_model->get_single_ads($param2);
@@ -3595,14 +3595,14 @@ class Admin extends Admin_Core_Controller {
             $this->load->model('email_model');
             if($this->email_model->test_mail($email)){
                 $this->session->set_flashdata('success', trans('mail_setup_perfect'));
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }else{
                 $this->session->set_flashdata('error', trans('mail_setup_error'));
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }
         }        
         $this->session->set_flashdata('error', trans('enter_valid_email'));
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
         
     }
 
@@ -3620,7 +3620,7 @@ class Admin extends Admin_Core_Controller {
             demo_check();
             $this->common_model->create_backup();
             $this->session->set_flashdata('success', trans('backup_created'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($operation == 'download') {
             demo_check();
@@ -3634,18 +3634,18 @@ class Admin extends Admin_Core_Controller {
             $path_to_file = 'db_backup/'.$type;
             if(unlink($path_to_file)) {
                 $this->session->set_flashdata('success', trans('deleted'));
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }
             else {
                 $this->session->set_flashdata('error', trans('file_not_found'));
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             }
         }
         if ($operation == 'restore') {
             demo_check();
             $this->common_model->restore_backup();
             $this->session->set_flashdata('success', trans('backup_restored'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         
             $data['page_info']  = 'Create backup / restore from backup';
@@ -3700,7 +3700,7 @@ class Admin extends Admin_Core_Controller {
             safe_image_upload($_FILES['photo'], 'uploads/user_image/' .$user_id.'.jpg');
             $this->common_model->clear_cache();
             $this->session->set_flashdata('success', trans('profile_info_updated'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         if ($param1 == 'change_password'){
             demo_check();
@@ -3727,7 +3727,7 @@ class Admin extends Admin_Core_Controller {
             } else {
                 $this->session->set_flashdata('error', trans('password_not_match'));
             }
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
     }
 
@@ -3931,7 +3931,7 @@ class Admin extends Admin_Core_Controller {
             $data = $this->tmdb_model->get_movie_actor_info($id);
         }
         $this->session->set_flashdata('success', $data.' '.trans('start_imported'));
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
 
     function download_link(){
@@ -3955,7 +3955,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->insert('download_link',$data);
             $this->session->set_flashdata('success', trans("add_success"));
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     function video_file(){
         $response = array();
@@ -4101,7 +4101,7 @@ class Admin extends Admin_Core_Controller {
                  $this->db->update('config' , $data);
             endif;
             $this->session->set_flashdata('success', trans('cron_setting_success'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
         $data['page_name']  = 'manage_cron';
@@ -4140,7 +4140,7 @@ class Admin extends Admin_Core_Controller {
                 $config['upload_path']      = 'uploads/videos/';
                 $config['allowed_types']    = 'mp4|webm|mkv|m3u8';
                 $config['file_name']        = $NewFileName;
-                $config['max_size']         = 0;
+                $config['max_size']         = 204800;
                 //$this->load->library('upload', $config);
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -4177,7 +4177,7 @@ class Admin extends Admin_Core_Controller {
                 $this->session->set_flashdata('success', trans('video_add_success'));
             endif;
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     public function movie_file_update($video_file_id=""){
         demo_check();
@@ -4207,7 +4207,7 @@ class Admin extends Admin_Core_Controller {
                 $config['upload_path']      = 'uploads/videos/';
                 $config['allowed_types']    = 'mp4|webm|mkv|m3u8';
                 $config['file_name']        = $NewFileName;
-                $config['max_size']         = 0;
+                $config['max_size']         = 204800;
                 //$this->load->library('upload', $config);
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -4243,7 +4243,7 @@ class Admin extends Admin_Core_Controller {
                 $this->session->set_flashdata('success', trans('video_update_success'));
             endif;
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     public function episodes_upload(){
         demo_check();
@@ -4280,7 +4280,7 @@ class Admin extends Admin_Core_Controller {
                 $config['upload_path']      = 'uploads/videos/';
                 $config['allowed_types']    = 'mp4|webm|mkv|m3u8';
                 $config['file_name']        = $NewFileName;
-                $config['max_size']         = 0;
+                $config['max_size']         = 204800;
                 //$this->load->library('upload', $config);
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -4330,7 +4330,7 @@ class Admin extends Admin_Core_Controller {
                 $config['upload_path']      = 'uploads/episodes/';
                 $config['allowed_types']    = 'jpg|png|jpeg';
                 $config['file_name']        = $image_name;
-                $config['max_size']         = 0;
+                $config['max_size']         = 5120;
                 //$this->load->library('upload', $config);
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -4339,7 +4339,7 @@ class Admin extends Admin_Core_Controller {
                 endif;
             endif;
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     public function episodes_update($episodes_id=""){
         demo_check();
@@ -4371,7 +4371,7 @@ class Admin extends Admin_Core_Controller {
                 $config['upload_path']      = 'uploads/videos/';
                 $config['allowed_types']    = 'mp4|webm|mkv|m3u8';
                 $config['file_name']        = $NewFileName;
-                $config['max_size']         = 0;
+                $config['max_size']         = 204800;
                 //$this->load->library('upload', $config);
                 $this->upload->initialize($config);
                 //upload file to directory
@@ -4412,7 +4412,7 @@ class Admin extends Admin_Core_Controller {
             $config['upload_path']      = 'uploads/episodes/';
             $config['allowed_types']    = 'jpg|png|jpeg';
             $config['file_name']        = $image_name;
-            $config['max_size']         = 0;
+            $config['max_size']         = 5120;
             $config['overwrite']        = TRUE;
             $this->upload->initialize($config);
             //upload file to directory
@@ -4420,7 +4420,7 @@ class Admin extends Admin_Core_Controller {
                 $this->session->set_flashdata('error', $this->upload->display_errors());
             endif;
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
 
     public function load_stars(){
@@ -4487,7 +4487,7 @@ class Admin extends Admin_Core_Controller {
         $characters = array_merge(range('a','z'), range('0','9'));
         $max = count($characters) - 1;
         for ($i = 0; $i < $length; $i++) {
-            $rand = mt_rand(0, $max);
+            $rand = random_int(0, $max);
             $str .= $characters[$rand];
         }
         return $str;
@@ -4498,7 +4498,7 @@ class Admin extends Admin_Core_Controller {
         $characters         = array_merge(range('a','z'), range('0','9'),range('~','|'));
         $max                = count($characters) - 1;
         for ($i = 0; $i < $length; $i++) {
-            $rand = mt_rand(0, $max);
+            $rand = random_int(0, $max);
             $str .= $characters[$rand];
         }
         return $str;
@@ -4520,7 +4520,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->where('episodes_id',$episode['episodes_id']);
             $this->db->update('episodes', $data);
         endforeach;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
 
     function texti(){
@@ -4567,7 +4567,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('admob_setting_change'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         $data['page_name']  = 'admob_setting';
         $data['page_title'] = trans('admob_setting');
@@ -4642,7 +4642,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', 'Ads Setting changed.');
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         $data['page_name']  = 'mobile_ads_setting';
         $data['page_title'] = 'Mobile Ads Setting';
@@ -4714,7 +4714,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', 'Ads Setting changed.');
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         $data['page_name']  = 'mobile_ads_setting_legacy';
         $data['page_title'] = 'Mobile Ads Setting';
@@ -4747,7 +4747,7 @@ class Admin extends Admin_Core_Controller {
             $this->db->update('config' , $data);
 
             $this->session->set_flashdata('success', trans('ima_ads_setting_changed'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
         $data['page_name']  = 'ima_ads_setting';
         $data['page_title'] = trans('ima_ads_setting');
@@ -4774,7 +4774,7 @@ class Admin extends Admin_Core_Controller {
                 $this->db->update('config' , $data);
             endif;
             $this->session->set_flashdata('success', trans('language_change'));
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         endif;
 
         if($param1=='add_language'):
@@ -4783,14 +4783,14 @@ class Admin extends Admin_Core_Controller {
             $this->form_validation->set_rules('name', 'Name', 'required|xss_clean|max_length[200]');
             if ($this->form_validation->run() === false):
                 $this->session->set_flashdata('error', validation_errors());
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             else:
                 if ($this->language_model->add_language()):
                     $this->session->set_flashdata('success', trans('language_added'));
-                    redirect($this->agent->referrer());
+                    safe_redirect($this->agent->referrer());
                 else:
                     $this->session->set_flashdata('error', trans('language_add_fail'));
-                    redirect($this->agent->referrer());
+                    safe_redirect($this->agent->referrer());
                 endif;
             endif;
         endif;
@@ -4819,21 +4819,21 @@ class Admin extends Admin_Core_Controller {
             $id = $this->input->post('id', true);
             if ($this->form_validation->run() === false):
                 $this->session->set_flashdata('error', validation_errors());
-                redirect($this->agent->referrer());
+                safe_redirect($this->agent->referrer());
             else:
                 if ($this->language_model->update_language($id)):
                     $this->session->set_flashdata('success', trans('language_added'));
-                    redirect($this->agent->referrer());
+                    safe_redirect($this->agent->referrer());
                 else:
                     $this->session->set_flashdata('error', trans('language_add_fail'));
-                    redirect($this->agent->referrer());
+                    safe_redirect($this->agent->referrer());
                 endif;
             endif;
         endif;
 
         $data['language'] = $this->language_model->get_language($param1);
         if (empty($data['language'])) {
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
         $data['page_name']  = 'language_edit';
@@ -4869,7 +4869,7 @@ class Admin extends Admin_Core_Controller {
         $data['language'] = $this->language_model->get_language($id);
 
         if (empty($data['language'])) {
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
         $data["phrases"] = $this->language_model->get_phrases($data['language']->folder_name);
         $this->session->unset_userdata('phrases');
@@ -4888,7 +4888,7 @@ class Admin extends Admin_Core_Controller {
         $data['language'] = $this->language_model->get_language($id);
 
         if (empty($data['language'])) {
-            redirect($this->agent->referrer());
+            safe_redirect($this->agent->referrer());
         }
 
         $phrases = $this->input->post(array('phrase'));
@@ -4904,7 +4904,7 @@ class Admin extends Admin_Core_Controller {
             $this->session->set_flashdata('error', trans('update_fail'));
         endif;
         sleep(3);        
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     public function generator_sitemap(){
         demo_check();
@@ -4915,7 +4915,7 @@ class Admin extends Admin_Core_Controller {
         else:
             $this->session->set_flashdata('error', trans('update_fail'));
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
     public function get_single_movie_details_by_id(){
         $response                       = array();
@@ -5007,7 +5007,7 @@ class Admin extends Admin_Core_Controller {
                 $this->session->set_flashdata('success', 'New key create and save successed.');
             endif;
         endif;
-        redirect($this->agent->referrer());
+        safe_redirect($this->agent->referrer());
     }
 
     // movie request

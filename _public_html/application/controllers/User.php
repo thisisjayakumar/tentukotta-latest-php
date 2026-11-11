@@ -681,13 +681,13 @@ class User extends Home_Core_Controller{
         if ($this->form_validation->run() == FALSE):
             //var_dump(validation_errors()); exit;
             $this->session->set_flashdata('error', "Something went wrong!!");
-            redirect($this->agent->referrer(), 'refresh');
+            safe_redirect($this->agent->referrer(), 'refresh');
         else:
             $data['type'] = $this->input->post('type');
             $data['id'] = $this->input->post('id');
             $this->db->insert('report',$data);
             $this->session->set_flashdata('success', 'Report sent successfully.');
-            redirect($this->agent->referrer(), 'refresh');
+            safe_redirect($this->agent->referrer(), 'refresh');
         endif;
 
     }
