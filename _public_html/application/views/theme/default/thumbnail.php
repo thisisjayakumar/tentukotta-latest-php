@@ -1,17 +1,17 @@
 <?php $assets_dir  =   'assets/theme/default/'; ?>
-<div class="popup" data-toggle="popover" data-container="body" title="<?php echo $videos['title'];?>" data-original-title="<?php echo $videos['title'];?>" data-content="
+<div class="popup" data-toggle="popover" data-container="body" title="<?php echo e($videos['title']);?>" data-original-title="<?php echo e($videos['title']);?>" data-content="
       <div class='trailer-container' >
           <div class='trailer-foreground'>
             <?php if($videos['trailler_youtube_source'] !='' && $videos['trailler_youtube_source'] !=NULL):?>
-              <iframe src='https://www.youtube.com/embed/<?php echo $this->common_model->getYouTubeId($videos['trailler_youtube_source']);?>?autoplay=1&loop=1&controls=0&showinfo=0' frameborder='0' allow='autoplay; encrypted-media; fullscreen'></iframe>
+              <iframe src='https://www.youtube.com/embed/<?php echo e($this->common_model->getYouTubeId($videos['trailler_youtube_source']));?>?autoplay=1&loop=1&controls=0&showinfo=0' frameborder='0' allow='autoplay; encrypted-media; fullscreen'></iframe>
             <?php else: ?>
-              <img src='<?php echo $this->common_model->get_video_poster_url($videos['videos_id']); ?>'>
+              <img src='<?php echo e($this->common_model->get_video_poster_url($videos['videos_id'])); ?>'>
             <?php endif; ?>
           </div>
       </div>" >
-  <div class="latest-movie-img-container lazy" style="background-image: url('<?php echo $this->common_model->get_video_thumb_url($videos['videos_id']); ?>'); display: inline-block;">
+  <div class="latest-movie-img-container lazy" style="background-image: url('<?php echo e($this->common_model->get_video_thumb_url($videos['videos_id'])); ?>'); display: inline-block;">
     <div class="movie-img">
-      <a href="<?php echo base_url('watch/'.$videos['slug']).'.html';?>" class="ico-play ico-play-sm">
+      <a href="<?php echo e(base_url('watch/'.$videos['slug']).'.html');?>" class="ico-play ico-play-sm">
         <svg 
           version="1.1" 
           id="play_sv" 
@@ -63,7 +63,7 @@
       </div>
       <div class="movie-title">
         <h3>
-          <a href="<?php echo base_url('watch/'.$videos['slug']).'.html';?>"><?php echo $videos['title'];?></a>
+          <a href="<?php echo e(base_url('watch/'.$videos['slug']).'.html');?>"><?php echo e($videos['title']);?></a>
         </h3>
       </div>
     </div>

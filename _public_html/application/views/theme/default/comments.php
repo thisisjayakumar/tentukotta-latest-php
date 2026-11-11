@@ -9,7 +9,7 @@
 <div class="row">
     <div class="col-md-12">                        
     	<h2 class="border"><?php echo trans('facebook_comments'); ?></h2>
-    	<div class="fb-comments" data-href="<?php echo $PAGE_URL;?>.html" data-width="800" data-numposts="30"></div>
+        <div class="fb-comments" data-href="<?php echo e($PAGE_URL);?>.html" data-width="800" data-numposts="30"></div>
 		<div id="fb-root"></div>
 	    <script>
 	        (function(d, s, id) {
@@ -32,13 +32,13 @@
         <div id="disqus_thread"></div>
         <script>
             var disqus_config = function () {
-                this.page.url = "<?php echo $PAGE_URL;?>";  // Replace PAGE_URL with your page's canonical URL variable
-                this.page.identifier = "<?php echo $PAGE_IDENTIFIER;?>"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+                this.page.url = <?php echo json_encode($PAGE_URL);?>;  // Replace PAGE_URL with your page's canonical URL variable
+                this.page.identifier = <?php echo json_encode($PAGE_IDENTIFIER);?>; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
             };
 
             (function() { // DON'T EDIT BELOW THIS LINE
                 var d = document, s = d.createElement('script');
-                s.src = 'https://<?php echo $disqus_short_name; ?>.disqus.com/embed.js';
+                s.src = 'https://' + <?php echo json_encode($disqus_short_name);?> + '.disqus.com/embed.js';
                 s.setAttribute('data-timestamp', +new Date());
                 (d.head || d.body).appendChild(s);
             })();

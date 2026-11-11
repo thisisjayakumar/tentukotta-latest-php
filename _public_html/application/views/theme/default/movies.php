@@ -142,7 +142,7 @@
                         <?php foreach($this->genre_model->genres() as $genre): ?>
                             <li class="modern-Checkbox">
                               <input type="checkbox" name="check_category" onclick="check_category(this)" class="common_selector genre" id="genre-<?php echo $genre['genre_id'] ?>" value="<?php echo $genre['genre_id'] ?>">
-                              <label for="genre-<?php echo $genre['genre_id'] ?>"><?php echo $genre['name'] ?></label>
+                              <label for="genre-<?php echo $genre['genre_id'] ?>"><?php echo e($genre['name']) ?></label>
                             </li>
                         <?php endforeach; ?>                        
                       </ul>
@@ -174,7 +174,7 @@
                         <?php foreach($this->country_model->countries() as $country): ?>
                             <li class="modern-Checkbox">
                               <input type="checkbox" name="check_country" onclick="check_country(this)" class="common_selector country" id="country-<?php echo $country['country_id'] ?>" value="<?php echo $country['country_id'] ?>">
-                              <label for="country-<?php echo $country['country_id'] ?>"><?php echo $country['name'] ?></label>
+                              <label for="country-<?php echo $country['country_id'] ?>"><?php echo e($country['name']) ?></label>
                             </li>
                         <?php endforeach; ?>
                       </ul>

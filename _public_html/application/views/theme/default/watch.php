@@ -62,7 +62,7 @@
                     <!-- movie info -->
                     <div class="row movies-list-wrap">
                     <div class="ml-title">
-                        <span class="pull-left title"><?php echo $watch_videos->title;?></span>
+                        <span class="pull-left title"><?php echo e($watch_videos->title);?></span>
                         <ul role="tablist" class="nav nav-tabs">
                             <li style="display: none;"><a data-toggle="tab" href="#in" style="display: none;"><?php echo trans('info'); ?></a></li>
                             <li class="active"><a data-toggle="tab" href="#info"><?php echo trans('info'); ?></a></li>
@@ -79,12 +79,12 @@
                         <div class="tab-content">
                             <div id="info" class="tab-pane fade in active">
                                 <div class="row">
-                                    <div class="col-md-3 m-t-10"><img class="img-responsive" style="min-width: 183px;" src="<?php echo $this->common_model->get_video_thumb_url($watch_videos->videos_id); ?>" alt="<?php echo $watch_videos->title;?>"></div>
+                                    <div class="col-md-3 m-t-10"><img class="img-responsive" style="min-width: 183px;" src="<?php echo $this->common_model->get_video_thumb_url($watch_videos->videos_id); ?>" alt="<?php echo e($watch_videos->title);?>"></div>
                                     <div class="col-md-9">
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <h1>
-                                                    <?php echo $watch_videos->title;?>
+                                                    <?php echo e($watch_videos->title);?>
                                                 </h1>
                                                 <button class="btn btn-sm btn-default" onclick="wish_list_add('fav','<?php echo $watch_videos->videos_id;?>')"><i class="fa fa-heart-o"></i></button>
                                                 <button class="btn btn-sm btn-default" onclick="wish_list_add('wl','<?php echo $watch_videos->videos_id;?>')"><i class="fa fa-clock-o"></i></button>
@@ -92,7 +92,7 @@
                                                 <?php  if($this->db->get_where('config' , array('title' =>'social_share_enable'))->row()->value =='1'):?>
                                                 
                                                 <!-- Go to www.addthis.com/dashboard to customize your tools -->
-                                                <div class="addthis_inline_share_toolbox_yl99 m-t-30 m-b-10" data-url="<?php echo base_url().'watch/'.$watch_videos->slug.'.html';?>" data-title="Watch & Download <?php echo $watch_videos->title;?>"></div>
+                                                <div class="addthis_inline_share_toolbox_yl99 m-t-30 m-b-10" data-url="<?php echo e(base_url().'watch/'.$watch_videos->slug.'.html');?>" data-title="Watch & Download <?php echo e($watch_videos->title);?>"></div>
                                                 <!-- Addthis Social tool -->
                                             <?php endif; ?>
                                                 <p>
@@ -108,7 +108,7 @@
                                                         $genres =explode(',', $watch_videos->genre);                                                
                                                         foreach ($genres as $genre_id):
                                                         if($i>0){ echo ',';} $i++;                                           ?>
-                                                    <a href="<?php echo $this->genre_model->get_genre_url_by_id($genre_id);?>"><?php echo $this->genre_model->get_genre_name_by_id($genre_id);?></a>
+                                                    <a href="<?php echo $this->genre_model->get_genre_url_by_id($genre_id);?>"><?php echo e($this->genre_model->get_genre_name_by_id($genre_id));?></a>
                                                 <?php endforeach; endif;?>
                                                 </p>
                                                 <p> <strong><?php echo trans('actor'); ?>: </strong>
@@ -147,27 +147,27 @@
                                                         foreach ($countries as $country_id):
                                                         if($i>0){ echo ',';} $i++;
                                                         ?>
-                                                    <a href="<?php echo $this->country_model->get_country_url_by_id($country_id);?>"><?php echo $this->country_model->get_country_name_by_id($country_id);?></a>
+                                                    <a href="<?php echo $this->country_model->get_country_url_by_id($country_id);?>"><?php echo e($this->country_model->get_country_name_by_id($country_id));?></a>
                                                 <?php endforeach; endif;?>
                                                 </p>
                                                 <p><strong><?php echo trans('release'); ?>: </strong>
-                                                    <?php echo $watch_videos->release;?>
+                                                    <?php echo e($watch_videos->release);?>
                                                 </p>
                                             </div>
                                             <div class="col-md-6 text-left">
                                                 <p><strong><?php echo trans('duration'); ?>:</strong>
-                                                    <?php echo $watch_videos->runtime;?>
+                                                    <?php echo e($watch_videos->runtime);?>
                                                 </p>
-                                                <p><strong><?php echo trans('quality'); ?>:</strong>  <span class="label label-primary"><?php echo $watch_videos->video_quality; ?></span></p>
+                                                <p><strong><?php echo trans('quality'); ?>:</strong>  <span class="label label-primary"><?php echo e($watch_videos->video_quality); ?></span></p>
                                                 <p><strong><?php echo trans('rating'); ?>:</strong>
-                                                    <?php echo $watch_videos->rating;?>
+                                                    <?php echo e($watch_videos->rating);?>
                                                 </p>
                                                 <?php if($watch_videos->imdb_rating !='' && $watch_videos->imdb_rating !=NULL): ?>
                                                 <p><strong><img src="<?php echo base_url($assets_dir);?>images/imdb-logo.png"></strong>
-                                                    <?php echo $watch_videos->imdb_rating;?>
+                                                    <?php echo e($watch_videos->imdb_rating);?>
                                                 </p>
                                             <?php endif; ?>
-                                                <div class='rating_selection pull-left'> <strong id="rated"><?php echo trans('rating'); ?>(<?php echo $watch_videos->total_rating;?>)</strong><br>
+                                                <div class='rating_selection pull-left'> <strong id="rated"><?php echo trans('rating'); ?>(<?php echo e($watch_videos->total_rating);?>)</strong><br>
                                                     <input checked id='rating_0' class="rate_now" name='rating' type='radio' value='0'>
                                                     <label for='rating_0'> <span><?php echo trans('unrated'); ?></span> </label>
                                                     <input id='rating_1' class="rate_now" name='rating' type='radio' value='1'>
@@ -202,7 +202,7 @@
                                                 <?php if ($watch_videos->tags !='' && $watch_videos->tags !=NULL): ?>
                                                         <?php $tags=explode(',', $watch_videos->tags);
                                                         foreach ($tags as $tag):
-                                                        ?><a class="btn btn-default btn-tags btn-sm" href="<?php echo base_url().'tags/'.$tag.'.html'; ?>">#<?php echo $tag; ?></a>
+                                                        ?><a class="btn btn-default btn-tags btn-sm" href="<?php echo base_url().'tags/'.$tag.'.html'; ?>">#<?php echo e($tag); ?></a>
                                                         <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </div>
@@ -213,7 +213,7 @@
                         <?php if($total_download_links >0 && $watch_videos->enable_download =='1'): ?>
                             <div id="download" class="tab-pane fade m-t-10">
                               <?php foreach($download_links as $dw_link): $season_title =''; if($watch_videos->is_tvseries): $season_title = $this->common_model->get__seasons_name_by_id($dw_link['season_id']); endif;?>
-                                    <a class='btn btn-default btn-inline btn-sm' href="<?php echo urldecode($dw_link['download_url']); ?>"><span class="btn-label"><i class="fa fa-download"></i></span><?php echo $season_title.'-'.$dw_link['link_title'].'-'.$dw_link['resolution'].'-'.$dw_link['file_size'] ?></a>
+                                    <a class='btn btn-default btn-inline btn-sm' href="<?php echo e(urldecode($dw_link['download_url'])); ?>"><span class="btn-label"><i class="fa fa-download"></i></span><?php echo e($season_title.'-'.$dw_link['link_title'].'-'.$dw_link['resolution'].'-'.$dw_link['file_size']); ?></a>
                               <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -226,7 +226,7 @@
                                     ?>
                                         <div class="col-md-2 col-sm-3 col-xs-4">
                                             <a href="<?php echo base_url().'star/'.$this->common_model->get_star_slug_by_id($star_id);?>">
-                                                <img class="thumbnail img-responsive" src="<?php echo $this->common_model->get_image_url('star',$star_id) ?>" alt="<?php echo $this->common_model->get_star_name_by_id($star_id); ?>" title="<?php echo $this->common_model->get_star_name_by_id($star_id); ?>">
+                                                <img class="thumbnail img-responsive" src="<?php echo $this->common_model->get_image_url('star',$star_id) ?>" alt="<?php echo e($this->common_model->get_star_name_by_id($star_id)); ?>" title="<?php echo e($this->common_model->get_star_name_by_id($star_id)); ?>">
                                             </a>
                                         </div>
                                     <?php endforeach; endif;?>
@@ -240,7 +240,7 @@
                                     ?>
                                     <div class="col-md-2 col-sm-3 col-xs-4">
                                         <a href="<?php echo base_url().'star/'.$this->common_model->get_star_slug_by_id($star_id);?>">
-                                            <img class="thumbnail img-responsive" src="<?php echo $this->common_model->get_image_url('star',$star_id) ?>" alt="<?php echo $this->common_model->get_star_name_by_id($star_id); ?>" title="<?php echo $this->common_model->get_star_name_by_id($star_id); ?>">
+                                            <img class="thumbnail img-responsive" src="<?php echo $this->common_model->get_image_url('star',$star_id) ?>" alt="<?php echo e($this->common_model->get_star_name_by_id($star_id)); ?>" title="<?php echo e($this->common_model->get_star_name_by_id($star_id)); ?>">
                                         </a>
                                     </div>
                                     <?php endforeach; endif;?>
@@ -254,7 +254,7 @@
                                  ?>
                                  <div class="col-md-2 col-sm-3 col-xs-4">
                                     <a href="<?php echo base_url().'star/'.$this->common_model->get_star_slug_by_id($star_id);?>">
-                                        <img class="thumbnail img-responsive" src="<?php echo $this->common_model->get_image_url('star',$star_id) ?>" alt="<?php echo $this->common_model->get_star_name_by_id($star_id); ?>" title="<?php echo $this->common_model->get_star_name_by_id($star_id); ?>">
+                                        <img class="thumbnail img-responsive" src="<?php echo $this->common_model->get_image_url('star',$star_id) ?>" alt="<?php echo e($this->common_model->get_star_name_by_id($star_id)); ?>" title="<?php echo e($this->common_model->get_star_name_by_id($star_id)); ?>">
                                     </a>
                                 </div>
                                 <?php endforeach; endif;?>
@@ -318,7 +318,7 @@
         $('.rate_now').click(function() {
             rate = $(this).val();
             video_id = "<?php echo $watch_videos->videos_id;?>";
-            current_rating = "<?php echo $watch_videos->total_rating;?>";
+            current_rating = "<?php echo e($watch_videos->total_rating);?>";
             total_rating = Number(current_rating) + Number(1);
             if (parseInt(rate) && parseInt(video_id)) {
                 $.ajax({

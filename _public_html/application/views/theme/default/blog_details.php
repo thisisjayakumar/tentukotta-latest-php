@@ -10,7 +10,7 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
                 <div class="page-title">
                     <h1 class="text-uppercase">
-                        <?php echo $post_details->post_title; ?>
+                        <?php echo e($post_details->post_title); ?>
                     </h1>
                 </div>
             </div>
@@ -21,7 +21,7 @@
                     </li>
                     <li><a href="<?php echo base_url('blog');?>"><i class="fi ion-edit"></i><?php echo trans('blog'); ?></a></li>
                     <li class="active">
-                        <?php echo $post_details->slug; ?>
+                        <?php echo e($post_details->slug); ?>
                     </li>
                 </ul>
             </div>
@@ -39,24 +39,24 @@
                     <div class="row">
                         <div class="col-sm-12">
                             <div class="blog-detail-img">
-                                <img class="img-responsive" src="<?php echo $post_details->image_link; ?>" alt="<?php echo $post_details->post_title; ?>">
+                                <img class="img-responsive" src="<?php echo e($post_details->image_link); ?>" alt="<?php echo e($post_details->post_title); ?>">
                             </div>
                             <div>
                                 <h1 class="blog-title">
-                                    <?php echo $post_details->post_title; ?>
+                                    <?php echo e($post_details->post_title); ?>
                                 </h1>
                             </div>
                             <div class="post-video-info">
                                 <div class="row">
                                     <div class="col-md-6"><span class="by-in"><?php echo trans('by'); ?></span>
-                                        <a href="#"><?php echo $this->common_model->get_name_by_id($post_details->user_id);?></a>
+                                        <a href="#"><?php echo e($this->common_model->get_name_by_id($post_details->user_id));?></a>
                                         <span>&#47;</span>
                                         <span class="by-in"> In</span>
                                         <?php $category=explode(',', $post_details->category_id);
                                             foreach ($category as $category):
                                         ?>
                                         <a href="<?php echo base_url().'blog/category/'.$this->common_model->get_slug_by_category_id($category).'.html'; ?>">
-                                            <?php echo $this->common_model->get_category_name_by_id($category);?>
+                                            <?php echo e($this->common_model->get_category_name_by_id($category));?>
                                         </a>
                                         <?php endforeach; ?>
                                     </div>
@@ -68,7 +68,7 @@
                             <div class="movie-details-text">
                                 <?php echo $post_details->content; ?>
                                 <!-- Go to www.addthis.com/dashboard to customize your tools -->
-                                    <div class="addthis_inline_share_toolbox_yl99 m-t-30 m-b-10" data-url="<?php echo base_url().'blog/'.$post_details->slug.'.html';?>" data-title="Watch & Download <?php echo $post_details->post_title;?>"></div>
+                                    <div class="addthis_inline_share_toolbox_yl99 m-t-30 m-b-10" data-url="<?php echo base_url().'blog/'.$post_details->slug.'.html';?>" data-title="Watch & Download <?php echo e($post_details->post_title);?>"></div>
                                     <!-- Addthis Social tool -->
                             </div>
                             <div class="similler-movie">
@@ -88,7 +88,7 @@
                                         <div class="col-md-6 col-sm-6">
                                             <div class="post-list-container">
                                                 <div class="movie-img">
-                                                    <img class="img-responsive" src="<?php echo $posts->image_link; ?>" alt="video image">
+                                                    <img class="img-responsive" src="<?php echo e($posts->image_link); ?>" alt="video image">
                                                 </div>
                                                 <div class="post-video-info">
                                                     <p class="post-video-aut-name">
@@ -100,7 +100,7 @@
                                                             foreach ($category as $category):
                                                         ?>
                                                         <a href="<?php echo base_url().'blog/'.$category; ?>">
-                                                            <?php echo $this->common_model->get_category_name_by_id($category);?>
+                                                            <?php echo e($this->common_model->get_category_name_by_id($category));?>
                                                         </a>
                                                         <?php endforeach; ?>
                                                     </p>
