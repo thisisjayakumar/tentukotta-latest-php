@@ -144,19 +144,46 @@ class Cron extends Home_Core_Controller {
         endif;
     }
 
+    /**
+     * View-counter resets mutate every row in `videos`. They are maintenance
+     * jobs, not web endpoints: refuse anything that is not a CLI invocation.
+     */
+    private function _require_cli(): bool
+    {
+        if (is_cli()) {
+            return TRUE;
+        }
+
+        $this->output->set_status_header(403);
+        echo 'Forbidden: run this job from the command line.';
+        return FALSE;
+    }
+
     public function reset_daily_view(){
+        if (!$this->_require_cli()) {
+            return;
+        }
+
         $data['today_view'] = 0;
         $this->db->update('videos', $data);
         return TRUE;
     }
 
     public function reset_weekly_view(){
+        if (!$this->_require_cli()) {
+            return;
+        }
+
         $data['weekly_view'] = 0;
         $this->db->update('videos', $data);
         return TRUE;
     }
 
     public function reset_monthly_view(){
+        if (!$this->_require_cli()) {
+            return;
+        }
+
         $data['monthly_view'] = 0;
         $this->db->update('videos', $data);
         return TRUE;
