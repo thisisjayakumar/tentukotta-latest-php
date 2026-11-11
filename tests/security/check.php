@@ -558,6 +558,65 @@ check('.env is git-ignored', function () use ($repo_root) {
     return is_file($p) && preg_match('/^\\.env$/m', file_get_contents($p)) === 1;
 });
 
+// -----------------------------------------------------------------------------
+// PHASE 1: stop-the-bleeding security fixes
+// -----------------------------------------------------------------------------
+check('cron counter resets require CLI', function () {
+    $s = src('application/controllers/Cron.php');
+    return substr_count($s, '_require_cli()') >= 4
+        && str_contains($s, 'is_cli()');
+});
+check('web login requires an active account', fn() => has(
+    'application/controllers/Login.php', "'status' => '1'"));
+check('API login requires an active account', function () {
+    foreach (['Api_v130_model.php', 'Api_v100_model.php', 'Legacy_api_model.php'] as $f) {
+        if (!str_contains(src('application/models/' . $f), "'status' => '1'")) {
+            return false;
+        }
+    }
+    return true;
+});
+check('firebase endpoints are disabled pending token verification', function () {
+    foreach ([
+        'application/controllers/rest_api/V100.php',
+        'application/controllers/rest_api/V130.php',
+        'application/controllers/Legacy_api.php',
+    ] as $f) {
+        if (!str_contains(src($f), 'Firebase sign-in is temporarily disabled')) {
+            return false;
+        }
+    }
+    return true;
+});
+check('no raw referrer redirects remain', function () {
+    $dir = root() . '/application/controllers';
+    $it = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS));
+    foreach ($it as $f) {
+        if ($f->getExtension() !== 'php') {
+            continue;
+        }
+        if (preg_match('/(?<!safe_)redirect\(\$this->agent->referrer\(\)/', file_get_contents($f->getPathname()))) {
+            return false;
+        }
+    }
+    return true;
+});
+check('key generation uses a CSPRNG', function () {
+    return !str_contains(src('application/controllers/Admin.php'), 'mt_rand')
+        && !str_contains(src('application/models/Common_model.php'), 'mt_rand');
+});
+check('uploads have a non-zero size cap', function () {
+    return !preg_match("/max_size'\\]\\s*=\\s*0\\s*;/", src('application/controllers/Admin.php'));
+});
+check('legacy stripe path verifies the charge server-side', function () {
+    $s = src('application/controllers/Subscription.php');
+    return str_contains($s, 'verify_payment(')
+        && !str_contains($s, '$stripe_response->paid');
+});
+check('public watch title is escaped', fn() => has(
+    'application/views/theme/default/watch.php', 'echo e($watch_videos->title)'));
+
 $installed = root() . '/application/third_party/google-api-client/vendor/composer/installed.json';
 if (is_file($installed) && str_contains(file_get_contents($installed), '"version": "6.5.3"')) {
     skip('guzzle is not the known-vulnerable 6.5.3', 'tracked in docs/security/dependency-remediation.md');
