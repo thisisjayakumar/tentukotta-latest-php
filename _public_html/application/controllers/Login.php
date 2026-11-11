@@ -91,7 +91,7 @@ class Login extends Home_Core_Controller{
             return 'throttled';
         }
         // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
-        $this->db->where('username', $username);
+        $this->db->where(array('username' => $username, 'status' => '1'));
         $query = $this->db->get('user');
         $row   = $query->row();
         if ($row && Password::verify((string) $password, (string) $row->password)) {

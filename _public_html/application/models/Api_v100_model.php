@@ -1362,7 +1362,7 @@ class Api_v100_model extends CI_Model {
     function validate_user($email   =   '' , $password   =  ''){
         // $password is plaintext; the stored value may be legacy MD5 or Argon2id.
         $result = FALSE;
-        $credential    =   array('email' => $email );
+        $credential    =   array('email' => $email, 'status' => '1' );
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
             $row = $query->row();
@@ -1389,7 +1389,7 @@ class Api_v100_model extends CI_Model {
     // validate login  function
     function validate_user_by_uid($uid   =   ''){
         $result = FALSE;
-        $credential    =   array('firebase_auth_uid' => $uid );
+        $credential    =   array('firebase_auth_uid' => $uid, 'status' => '1' );
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
             $result = TRUE;
@@ -1400,7 +1400,7 @@ class Api_v100_model extends CI_Model {
     // validate login  function
     function validate_user_by_id_password($user_id   =   '' , $password   =  ''){
         $result = FALSE;
-        $credential    =   array('user_id' => $user_id );
+        $credential    =   array('user_id' => $user_id, 'status' => '1' );
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
             $row = $query->row();
@@ -1424,7 +1424,7 @@ class Api_v100_model extends CI_Model {
     // validate login  function
     function validate_user_by_id($user_id   =   ''){
         $result = FALSE;
-        $credential    =   array(  'user_id' => $user_id);
+        $credential    =   array(  'user_id' => $user_id, 'status' => '1');
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
             $result = TRUE;
@@ -2594,7 +2594,7 @@ class Api_v100_model extends CI_Model {
     }
     function validate_user_by_id_firebase_auth_uid($user_id,$firebase_auth_uid){
         $result = FALSE;
-        $credential    =   array(  'user_id' => $user_id , 'firebase_auth_uid' => $firebase_auth_uid );
+        $credential    =   array(  'user_id' => $user_id , 'firebase_auth_uid' => $firebase_auth_uid, 'status' => '1' );
         $query = $this->db->get_where('user' , $credential);
         if ($query->num_rows() > 0):
             $this->db->where($credential);
