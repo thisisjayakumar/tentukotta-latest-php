@@ -1,0 +1,83 @@
+/* Targeted CI3 UI/UX refresh (P0): mobile-friendly layout, nav, search, core pages.
+   Loaded after theme styles; keep overrides minimal and reversible. */
+
+html, body { overflow-x: hidden; }
+body { font-size: 16px; line-height: 1.5; -webkit-text-size-adjust: 100%; }
+img, video, iframe { max-width: 100%; height: auto; }
+.container, .container-fluid { max-width: 100%; }
+
+/* Header / navbar */
+.navbar-brand { height: auto; padding: 8px 15px; max-width: 70%; }
+.navbar-brand img { max-height: 44px; width: auto; }
+.navbar-toggle { margin-top: 10px; margin-bottom: 10px; }
+.navbar-form { margin: 8px 0; border: 0; box-shadow: none; }
+.navbar-form .input-group { width: 100%; }
+.navbar-form .form-control { min-height: 40px; }
+.navbar .dropdown-menu { max-height: 60vh; overflow-y: auto; }
+
+/* Buttons / touch targets */
+.btn, .form-control, .nav > li > a { min-height: 40px; }
+.btn { padding: 8px 14px; }
+
+/* Search overlay */
+#search { padding: 20px; box-sizing: border-box; }
+#search form { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+#search input[type="search"], #search input[type="text"] { flex: 1 1 220px; min-height: 44px; font-size: 16px; }
+#search .btn { min-height: 44px; }
+
+/* Grids/cards */
+.movie-container .col-xs-6, .latest-movie .col-xs-6 { margin-bottom: 15px; }
+.latest-movie-img-container, .movie-item, .video-item { border-radius: 6px; overflow: hidden; }
+.latest-movie-img-container img, .movie-item img { width: 100%; display: block; }
+
+/* Watch/player */
+.video-container, .player, .mvp-main-container, .jwplayer, .video-js { max-width: 100%; }
+#movie_player, .movie-player, .embed-responsive { margin-bottom: 16px; }
+
+/* Auth/forms */
+#section-opt { padding-top: 30px; padding-bottom: 30px; }
+.sendus .custom-form .form-control, #login-form .form-control, #signup-form .form-control,
+#contact-form .form-control { width: 100% !important; float: none !important; margin-bottom: 12px; }
+.half-wdth-field { width: 100% !important; display: block; }
+#login-form .btn, #signup-form .btn { width: 100%; float: none !important; }
+
+/* Page titles/breadcrumbs */
+.page-title h1 { font-size: 24px; line-height: 1.3; word-break: break-word; }
+@media (min-width: 768px) { .page-title h1 { font-size: 30px; } }
+
+/* Footer/mobile bottom nav spacing */
+#main-content { padding-bottom: 70px; }
+.footer_nav { z-index: 999; }
+.footer_nav ul { margin: 0; padding: 0; }
+.footer_nav a { font-size: 12px; }
+
+/* Tables/admin readability helpers */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 991px) {
+  #primary-bar .col-md-4, #primary-bar .col-md-2 { text-align: center; margin-bottom: 10px; }
+  #primary-bar .logo img { margin: 0 auto; max-height: 48px; }
+  #primary-bar .social-icon, #primary-bar .social-icon ul { text-align: center; }
+  .navbar-header { float: none; }
+  .navbar-left, .navbar-right { float: none !important; }
+  .navbar-nav { margin: 0; }
+  .navbar-nav .open .dropdown-menu { position: static; float: none; width: auto; background: #fff; box-shadow: none; }
+  .navbar-nav .open .dropdown-menu .col-md-3 { width: 100%; float: none; }
+}
+
+@media (max-width: 767px) {
+  .navbar-brand { max-width: 60%; }
+  .navbar-collapse { max-height: 70vh; overflow-y: auto; }
+  .navbar-nav > li > a { padding: 12px 15px; }
+  .three-column-navbar, .dropdown-menu.row { padding: 5px 10px; }
+  .topbar { display: none !important; }
+  .movie-container [class*="col-xs-"] { padding-left: 6px; padding-right: 6px; }
+  .page-title h1 { font-size: 22px; text-align: center; }
+  #section-opt .container { padding-left: 12px; padding-right: 12px; }
+}
+
+@media (max-width: 480px) {
+  .movie-container .col-xs-6 { width: 50%; }
+  .btn, .form-control { font-size: 16px; } /* prevent iOS zoom */
+  .navbar-form .btn { width: auto; }
+}

@@ -248,7 +248,6 @@
         })
     }
 
-<a href="https://www.sigmatraffic.com?ref=204770">Free website traffic</a>
     $(document).ready(function() {
         filter_data(1);
         function filter_data(page) {

@@ -224,6 +224,7 @@
 <?php if($dark_theme=='1'): ?>
 <link rel="stylesheet" type="text/css" href="<?php echo base_url($assets_dir); ?>css/dark.css">
 <?php endif; ?>
+<link rel="stylesheet" type="text/css" href="<?php echo base_url($assets_dir); ?>css/ui-refresh.css">
     <style>
         .bg_img {
             background-image: url(<?php echo (ovoo_config("bg_image") != '' && file_exists('uploads/bg/'.ovoo_config("bg_image"))) ? base_url('uploads/bg/').ovoo_config("bg_image") : base_url('uploads/bg/bg.jpg'); ?>);

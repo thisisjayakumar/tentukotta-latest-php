@@ -50,8 +50,9 @@
 		        <div class="input-group">
 		          <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
 		          <span class="input-group-btn">
-		            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+		            <button class="btn btn-default" type="submit" aria-label="Search"><i class="fa fa-search"></i></button>
 		          </span>
+		        </div>
 		      </form>
 	    	</div>
 	    </div>
@@ -252,8 +253,9 @@
         <div class="input-group">
           <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
           <span class="input-group-btn">
-            <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+            <button class="btn btn-default" type="submit" aria-label="Search"><i class="fa fa-search"></i></button>
           </span>
+        </div>
       </form>
     </div>
   </div>
@@ -318,8 +320,9 @@
           <div class="input-group">
             <input type="text" name="q" value="<?php if(isset($search_keyword)){ echo e($search_keyword);} ?>" autocomplete="off" id="search-input" class="form-control" placeholder="Search..">
             <span class="input-group-btn">
-              <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+              <button class="btn btn-default" type="submit" aria-label="Search"><i class="fa fa-search"></i></button>
             </span>
+          </div>
         </form>
       </div>
     </div>
