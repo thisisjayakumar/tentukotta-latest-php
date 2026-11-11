@@ -1045,7 +1045,15 @@ class V130 extends API_Core_Controller{
 
     // login function
     // firebase auth
-    public function firebase_auth_post() {        
+    public function firebase_auth_post() {
+        // SECURITY: the legacy flow trusts client-supplied uid/email/phone without
+        // verifying a Firebase ID token. Disabled until server-side verification ships.
+        $this->response([
+            'status'  => 'error',
+            'message' => 'Firebase sign-in is temporarily disabled. Use email and password.',
+        ], 410);
+        return;
+
         $uid                      =   trim($this->input->post('uid'));
         $email                    = $this->input->post('email'); 
         $phone                    = $this->input->post('phone'); 

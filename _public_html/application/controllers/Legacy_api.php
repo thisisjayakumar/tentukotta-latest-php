@@ -1801,6 +1801,15 @@ class Legacy_api extends CI_Controller{
 
     // login function
     public function firebase_auth() {
+        // SECURITY: the legacy flow trusts client-supplied uid without verifying a
+        // Firebase ID token. Disabled until server-side verification ships.
+        $this->output->set_status_header(410);
+        echo json_encode([
+            'status'  => 'error',
+            'message' => 'Firebase sign-in is temporarily disabled. Use email and password.',
+        ]);
+        return;
+
         //$response                   =   array();
         $api_secret_key             =   $this->_api_key();
         // check api secret is sent
